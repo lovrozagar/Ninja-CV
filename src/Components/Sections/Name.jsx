@@ -66,7 +66,6 @@ function Name() {
       >
         {Object.keys(name).map((key, index) => {
           const isForename = key === 'forename'
-
           return onEdit ? (
             <TextField
               key={key}
