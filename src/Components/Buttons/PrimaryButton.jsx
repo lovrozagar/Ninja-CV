@@ -1,10 +1,10 @@
 import { Button } from '@mui/material'
 
-function PrimaryButton({ children, handleClick }) {
+function PrimaryButton({ children, onClick }) {
   return (
     <Button
       variant='filled'
-      onClick={handleClick}
+      onClick={onClick}
       sx={{
         backgroundColor: 'primary.main',
         color: 'primary.text',

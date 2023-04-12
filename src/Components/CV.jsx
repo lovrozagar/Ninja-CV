@@ -1,4 +1,8 @@
 import { Paper } from '@mui/material'
+import Name from './Sections/Name'
+
+import PrimaryButton from './Buttons/PrimaryButton'
+import SecondaryButton from './Buttons/SecondaryButton'
 
 function CV() {
   return (
@@ -7,9 +11,14 @@ function CV() {
         maxWidth: '210mm',
         minHeight: '295mm',
         m: '0 auto',
+        p: '0.5rem',
         textAlign: 'center',
       }}
-    ></Paper>
+    >
+      <Name />
+      <PrimaryButton>Preview</PrimaryButton>
+      <SecondaryButton>Download</SecondaryButton>
+    </Paper>
   )
 }
 

@@ -1,10 +1,10 @@
 import { Button } from '@mui/material'
 
-function SecondaryButton({ children, handleClick }) {
+function SecondaryButton({ children, onClick }) {
   return (
     <Button
       variant='outlined'
-      onClick={handleClick}
+      onClick={onClick}
       sx={{
         color: 'secondary.main',
       }}
