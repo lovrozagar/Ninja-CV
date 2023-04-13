@@ -5,8 +5,17 @@ function ClickOutsideGuard({ children, onClickOutside }) {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+      const clickedInsideSelectMenu = Boolean(
+        event.target.closest('.MuiList-root')
+      )
+
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target) &&
+        !clickedInsideSelectMenu
+      ) {
         onClickOutside()
+        document.activeElement.blur()
       }
     }
 
