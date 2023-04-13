@@ -56,8 +56,7 @@ function Name() {
     <HoverContainer fn={setOnEdit} onEdit={onEdit}>
       <Box
         sx={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
+          display: 'flex',
           justifyContent: 'center',
           gap: '0.5rem',
           width: '100%',
@@ -89,6 +88,7 @@ function Name() {
               key={key}
               variant='h3'
               sx={{
+                textTransform: 'uppercase',
                 fontWeight: isForename ? '200' : '400',
                 textAlign: isForename ? 'right' : 'left',
               }}

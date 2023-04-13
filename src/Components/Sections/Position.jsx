@@ -45,14 +45,7 @@ function Position() {
             }}
           ></TextField>
         ) : (
-          <Box
-            height='100%'
-            sx={{
-              fontWeight: '400',
-            }}
-          >
-            {position}
-          </Box>
+          <Box height='100%'>{position}</Box>
         )}
       </Box>
     </HoverContainer>
