@@ -7,6 +7,7 @@ function SkewTitle({ title }) {
         sx={{
           display: 'flex',
           width: 'fit-content',
+          ml: 1,
           px: 1,
           textAlign: 'left',
           color: 'white',
