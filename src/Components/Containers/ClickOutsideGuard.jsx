@@ -1,7 +1,7 @@
 import { Box } from '@mui/material'
 import { useEffect, useRef } from 'react'
 
-function ClickOutsideGuard({ children, onClickOutside }) {
+function ClickOutsideGuard({ children, onClickOutside, onOutsideHold }) {
   const wrapperRef = useRef(null)
 
   useEffect(() => {
