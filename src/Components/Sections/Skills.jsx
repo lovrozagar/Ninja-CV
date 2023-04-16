@@ -2,13 +2,15 @@ import { useEffect, useState, useMemo } from 'react'
 import { Box, TextField, Typography } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import SkewTitle from '../Utility/SkewTitle'
+import SectionTitleEdit from '../Utility/SectionTitleEdit'
+import SectionTitleView from '../Utility/SectionTitleView'
 import PrimaryButton from '../Buttons/PrimaryButton'
 import SecondaryButton from '../Buttons/SecondaryButton'
 import DeleteButton from '../Buttons/DeleteButton'
 import ResetButton from '../Buttons/ResetButton'
 import uniqid from 'uniqid'
 
-function Skills() {
+function Skills({ onDelete }) {
   const defaultTitle = 'Skills'
   // HOOKS
   const defaultSkills = useMemo(
@@ -62,41 +64,27 @@ function Skills() {
   }
 
   return (
-    <HoverContainer fn={setOnEdit} onEdit={onEdit} margin='wide'>
+    <HoverContainer
+      fn={setOnEdit}
+      onEdit={onEdit}
+      onDelete={onDelete}
+      margin='wide'
+    >
       <Box sx={{ display: 'grid', width: 1 }}>
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: onEdit ? '1fr' : 'auto 1fr',
           }}
         >
           {onEdit ? (
-            <Box sx={{ mb: 1 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <SkewTitle title='Section Title:' />
-                <ResetButton onClick={handleTitleReset} />
-              </Box>
-              <TextField
-                size='small'
-                fullWidth
-                value={title}
-                onChange={handleTitleChange}
-                placeholder='Cool description here'
-              ></TextField>
-            </Box>
+            <SectionTitleEdit
+              title={title}
+              onReset={handleTitleReset}
+              onChange={handleTitleChange}
+            />
           ) : (
-            <Typography variant='h6' sx={{ lineHeight: 1 }}>
-              {title}
-            </Typography>
+            <SectionTitleView title={title} />
           )}
-          <Box
-            sx={{
-              display: onEdit ? 'none' : 'block',
-              position: 'relative',
-              bottom: 2,
-              borderBottom: 1,
-            }}
-          ></Box>
         </Box>
         {onEdit ? (
           <SkillsEdit

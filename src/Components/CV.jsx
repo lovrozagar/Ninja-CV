@@ -17,16 +17,27 @@ function CV() {
     setSections((prev) => [...prev, { name: e.target.value, id: uniqid() }])
   }
 
+  function handleDelete(id) {
+    setSections((prev) => prev.filter((section) => section.id !== id))
+  }
+
   //HELPERS
   function getSectionType(section) {
     let component = null
 
-    switch (section) {
+    switch (section.name) {
       case 'Skills':
-        component = <Skills key={section.id} />
+        component = (
+          <Skills key={section.id} onDelete={() => handleDelete(section.id)} />
+        )
         break
       case 'Work Experience':
-        component = <WorkExperience key={section.id} />
+        component = (
+          <WorkExperience
+            key={section.id}
+            onDelete={() => handleDelete(section.id)}
+          />
+        )
         break
       default:
         break
@@ -48,7 +59,7 @@ function CV() {
       <Name />
       <Position />
       <Links />
-      {sections.map((section) => getSectionType(section.name))}
+      {sections.map((section) => getSectionType(section))}
       <AddSection onAdd={handleAdd} />
     </Paper>
   )

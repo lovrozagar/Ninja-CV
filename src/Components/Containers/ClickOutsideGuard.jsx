@@ -1,17 +1,20 @@
+import { Box } from '@mui/material'
 import { useEffect, useRef } from 'react'
 
 function ClickOutsideGuard({ children, onClickOutside }) {
   const wrapperRef = useRef(null)
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      const clickedInsideSelectMenu = Boolean(
-        event.target.closest('.MuiList-root')
+    function handleClickOutside(e) {
+      const clickedInsideSelectMenu = Boolean(e.target.closest('.MuiList-root'))
+      const clickedOnSelectMenu = Boolean(
+        e.target.classList.contains('MuiBackdrop-root')
       )
 
       if (
         wrapperRef.current &&
-        !wrapperRef.current.contains(event.target) &&
+        !wrapperRef.current.contains(e.target) &&
+        !clickedOnSelectMenu &&
         !clickedInsideSelectMenu
       ) {
         onClickOutside()
@@ -28,7 +31,6 @@ function ClickOutsideGuard({ children, onClickOutside }) {
     }
   }, [onClickOutside])
 
-  return <div ref={wrapperRef}>{children}</div>
+  return <Box ref={wrapperRef}>{children}</Box>
 }
-
 export default ClickOutsideGuard
