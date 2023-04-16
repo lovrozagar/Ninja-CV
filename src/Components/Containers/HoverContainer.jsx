@@ -1,26 +1,30 @@
 import { Button } from '@mui/material'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import ClickOutsideGuard from './ClickOutsideGuard'
 
 function HoverContainer({ children, fn, onEdit, margin, onDelete }) {
   const [heldDown, setHeldDown] = useState(false)
   const buttonRef = useRef(null)
+  const touchRef = useRef(null)
+  const touchRippleProps = {
+    timeout: 1000,
+  }
   let timeoutId = null
 
   function handleOutsideClick() {
-    fn(false)
+    if (onEdit) fn(false)
   }
 
   function handleInsideClick() {
-    !onEdit && fn(true)
+    if (!onEdit) fn(true)
   }
 
   function handleMouseDown(e) {
+    // SYNC MUI RIPPLE WHEN ELEMENT IN FOCUS
+    e.stopPropagation()
+    if (document.activeElement === e.target) document.activeElement.blur()
     // CHECK IF COMPONENT IS DELETABLE
     if (onDelete) {
-      // SYNC MUI RIPPLE WHEN ELEMENT IN FOCUS
-      e.stopPropagation()
-      if (document.activeElement === e.target) document.activeElement.blur()
       // DELETE TIMEOUT
       if (!onEdit) {
         setHeldDown(false)
@@ -32,14 +36,11 @@ function HoverContainer({ children, fn, onEdit, margin, onDelete }) {
   }
 
   function handleMouseUp() {
-    if (onDelete) {
-      if (!onEdit && heldDown) {
-        onDelete && onDelete()
-      }
-      if (!onEdit) {
-        setHeldDown(false)
-        clearTimeout(timeoutId)
-      }
+    if (onDelete && !onEdit) {
+      if (heldDown) onDelete()
+
+      setHeldDown(false)
+      clearTimeout(timeoutId)
     }
   }
 
@@ -50,16 +51,63 @@ function HoverContainer({ children, fn, onEdit, margin, onDelete }) {
     }
   }
 
+  function handleTouchStart(e) {
+    // SYNC MUI RIPPLE WHEN ELEMENT IN FOCUS
+    e.stopPropagation()
+    if (document.activeElement === e.target) document.activeElement.blur()
+    // CHECK IF COMPONENT IS DELETABLE
+    if (onDelete) {
+      // DELETE TIMEOUT
+      if (!onEdit) {
+        setHeldDown(false)
+        timeoutId = setTimeout(() => {
+          setHeldDown(true)
+          touchRef.current = e.touches[0].identifier
+        }, 800)
+      }
+    }
+  }
+
+  function handleTouchMove(e) {
+    if (onDelete) {
+      const touch = Array.from(e.touches).find(
+        (touch) => touch.identifier === touchRef.current
+      )
+      if (!touch || !buttonRef.current.contains(touch.target)) {
+        setHeldDown(false)
+      }
+    }
+  }
+
+  function handleTouchEnd() {
+    if (onDelete && !onEdit) {
+      if (heldDown) onDelete()
+
+      touchRef.current = null
+      setHeldDown(false)
+      clearTimeout(timeoutId)
+    }
+  }
+
+  function handleContextMenu(e) {
+    if (onDelete && !onEdit) e.preventDefault()
+  }
+
   return (
     <ClickOutsideGuard onClickOutside={handleOutsideClick}>
       <Button
-        ref={buttonRef}
-        disableRipple={onEdit ? true : false}
         component='div'
+        ref={buttonRef}
         onClick={handleInsideClick}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onContextMenu={handleContextMenu}
+        TouchRippleProps={touchRippleProps}
+        disableRipple={onEdit || heldDown ? true : false}
         sx={{
           width: '100%',
           mt: '0.5rem',
