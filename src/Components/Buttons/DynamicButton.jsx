@@ -1,4 +1,10 @@
-import { Button, IconButton, Typography } from '@mui/material'
+import {
+  Button,
+  IconButton,
+  useTheme,
+  createTheme,
+  ThemeProvider,
+} from '@mui/material'
 import {
   Replay,
   Add,
@@ -9,7 +15,26 @@ import {
 } from '@mui/icons-material'
 import Flex from '../Containers/Flex'
 
-function DynamicButton({ type, text, color, onClick, sx }) {
+function DynamicButton({ type, text, mainColor, onClick, sx }) {
+  // THEME
+  const theme = useTheme()
+
+  const { palette } = createTheme()
+  const { augmentColor } = palette
+  const createColor = (mainColor) =>
+    augmentColor({ color: { main: mainColor } })
+  const buttonTheme = createTheme({
+    palette: {
+      black: createColor(theme.palette.primary.darkGrey),
+      violet: createColor(theme.palette.primary.violet),
+    },
+  })
+
+  const customStyle = {
+    ...sx,
+    textTransform: 'none',
+  }
+
   const [kind, icon, variant, size] = type
     ? type.split(' ')
     : [null, null, null, null]
@@ -42,13 +67,14 @@ function DynamicButton({ type, text, color, onClick, sx }) {
   }
 
   return (
-    <>
+    <ThemeProvider theme={buttonTheme}>
       {kind === 'icon' ? (
         <IconButton
           size={size || 'small'}
           variant={variant || 'text'}
           onClick={onClick}
-          sx={{ ...sx, color: color || 'primary.main', textTransform: 'none' }}
+          color={mainColor}
+          sx={customStyle}
         >
           {buttonIcon}
         </IconButton>
@@ -57,7 +83,8 @@ function DynamicButton({ type, text, color, onClick, sx }) {
           size={size || 'small'}
           variant={variant || 'text'}
           onClick={onClick}
-          sx={{ ...sx, color: color || 'primary.main', textTransform: 'none' }}
+          color={mainColor}
+          sx={customStyle}
         >
           <Flex type='center'>
             {text}
@@ -65,7 +92,7 @@ function DynamicButton({ type, text, color, onClick, sx }) {
           </Flex>
         </Button>
       )}
-    </>
+    </ThemeProvider>
   )
 }
 
