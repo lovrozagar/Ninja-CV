@@ -1,23 +1,22 @@
 import { useEffect, useState, useMemo } from 'react'
-import { Box, TextField, Typography } from '@mui/material'
+import { Box } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
-import SkewTitle from '../Utility/SkewTitle'
-import SectionTitleEdit from '../Utility/SectionTitleEdit'
-import SectionTitleView from '../Utility/SectionTitleView'
-import PrimaryButton from '../Buttons/PrimaryButton'
-import SecondaryButton from '../Buttons/SecondaryButton'
-import DeleteButton from '../Buttons/DeleteButton'
-import ResetButton from '../Buttons/ResetButton'
+import Grid from '../Containers/Grid'
+import Flex from '../Containers/Flex'
 import uniqid from 'uniqid'
+import SectionTitleView from '../Titles/SectionTitleView'
+import InputBlock from '../Inputs/InputBlock'
+import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+import Points from '../Text/Points'
 
 function Skills({ onDelete }) {
   const defaultTitle = 'Skills'
   // HOOKS
   const defaultSkills = useMemo(
     () => [
-      { name: 'Ninja TeamWork', id: uniqid() },
-      { name: 'Ninja Development', id: uniqid() },
-      { name: 'Ninja Communication', id: uniqid() },
+      { text: 'Ninja TeamWork', id: uniqid() },
+      { text: 'Ninja Development', id: uniqid() },
+      { text: 'Ninja Communication', id: uniqid() },
     ],
     []
   )
@@ -27,14 +26,27 @@ function Skills({ onDelete }) {
 
   useEffect(() => {
     if (!onEdit) {
-      setSkills((prev) => prev.filter((skill) => skill.name.trim() !== ''))
+      setSkills((prev) => prev.filter((skill) => skill.text.trim() !== ''))
     }
-    if (!onEdit && skills.length === 0) setSkills(defaultSkills)
   }, [skills.length, onEdit, defaultSkills])
 
   // HANDLERS
-  function handleAdd() {
-    setSkills((prev) => [...prev, { name: '', id: uniqid() }])
+
+  function handleTitleReset() {
+    setTitle(defaultTitle)
+  }
+
+  function handleTitleChange(e) {
+    setTitle(e.target.value)
+  }
+
+  function handleSkillDelete(id) {
+    if (skills.length === 1) setSkills((prev) => [{ ...prev[0], text: '' }])
+    else setSkills((prev) => prev.filter((skill) => skill.id !== id))
+  }
+
+  function handleSkillAdd() {
+    setSkills((prev) => [...prev, { text: '', id: uniqid() }])
   }
 
   function handleDone() {
@@ -42,25 +54,12 @@ function Skills({ onDelete }) {
     document.activeElement.blur()
   }
 
-  function handleDelete(id) {
-    if (skills.length === 1) setSkills((prev) => [{ ...prev[0], name: '' }])
-    else setSkills((prev) => prev.filter((skill) => skill.id !== id))
-  }
-
-  function handleChange(e, id) {
+  function handleSkillChange(e, id) {
     setSkills((prev) =>
       prev.map((skill) => {
-        return skill.id === id ? { ...skill, name: e.target.value } : skill
+        return skill.id === id ? { ...skill, text: e.target.value } : skill
       })
     )
-  }
-
-  function handleTitleChange(e) {
-    setTitle(e.target.value)
-  }
-
-  function handleTitleReset() {
-    setTitle(defaultTitle)
   }
 
   return (
@@ -70,64 +69,48 @@ function Skills({ onDelete }) {
       onDelete={onDelete}
       margin='wide'
     >
-      <Box sx={{ display: 'grid', width: 1 }}>
-        <Box
-          sx={{
-            display: 'grid',
-          }}
-        >
-          {onEdit ? (
-            <SectionTitleEdit
-              title={title}
-              onReset={handleTitleReset}
-              onChange={handleTitleChange}
-            />
-          ) : (
-            <SectionTitleView title={title} />
-          )}
-        </Box>
+      <Grid>
         {onEdit ? (
           <SkillsEdit
+            title={title}
+            onTitleReset={handleTitleReset}
+            onTitleChange={handleTitleChange}
             skills={skills}
-            onDelete={handleDelete}
-            onChange={handleChange}
+            onSkillDelete={handleSkillDelete}
+            onSkillChange={handleSkillChange}
+            onSkillAdd={handleSkillAdd}
             onDone={handleDone}
-            onAdd={handleAdd}
           />
         ) : (
-          <SkillsView skills={skills} />
+          <SkillsView title={title} skills={skills} />
         )}
-      </Box>
+      </Grid>
     </HoverContainer>
   )
 }
 
-function SkillsView({ skills }) {
+function SkillsView({ title, skills }) {
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        gap: 1,
-      }}
-    >
-      {skills.map((skill, index) => (
-        <div key={skill.id}>
-          <span>{skill.name}</span>
-          {index === skills.length - 1 ? null : (
-            <span style={{ fontWeight: 'bold', marginLeft: '8px' }}>
-              &#183;
-            </span>
-          )}
-        </div>
-      ))}
+    <Box>
+      <SectionTitleView title={title} />
+      <Flex type='center'>
+        <Points array={skills} display='inline' />
+      </Flex>
     </Box>
   )
 }
 
-function SkillsEdit({ skills, onDelete, onChange, onAdd, onDone }) {
-  const ninjaSkills = [
+function SkillsEdit({
+  title,
+  onTitleReset,
+  onTitleChange,
+  skills,
+  onSkillDelete,
+  onSkillChange,
+  onSkillAdd,
+  onDone,
+}) {
+  const skillPlaceholders = [
     'e.g. fruit slicing',
     'e.g. stealth',
     'e.g. shuriken throwing',
@@ -152,41 +135,44 @@ function SkillsEdit({ skills, onDelete, onChange, onAdd, onDone }) {
   ]
 
   return (
-    <Box sx={{ display: 'grid', gap: 1, width: 1 }}>
-      {skills.map((skill, index) => (
-        <Box key={skill.id}>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-            }}
-          >
-            <SkewTitle title={`${index + 1}. Skill`} />
-            <DeleteButton handleClick={() => onDelete(skill.id)} />
-          </Box>
-          <TextField
-            fullWidth
-            size='small'
-            value={skill.name}
-            onChange={(e) => onChange(e, skill.id)}
-            placeholder={
-              index <= ninjaSkills.length ? ninjaSkills[index] : 'Another Skill'
-            }
-          />
-        </Box>
-      ))}
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 1,
-          m: '0.5rem 0 0 0',
-        }}
-      >
-        <SecondaryButton onClick={onAdd}>Add Skill</SecondaryButton>
-        <PrimaryButton onClick={onDone}>Done</PrimaryButton>
-      </Box>
-    </Box>
+    <Grid>
+      <InputBlock
+        color='primary.opposite'
+        bgcolor='primary.main'
+        type='between restore'
+        name='Section Title'
+        placeholder='e.g Skills'
+        value={title}
+        onClick={onTitleReset}
+        onChange={onTitleChange}
+      />
+      {skills.map((skill, index) => {
+        return (
+          <Grid key={skill.id}>
+            <InputBlock
+              color='primary.opposite'
+              bgcolor='primary.violet'
+              type='between x'
+              name={`${index + 1}. Skill`}
+              placeholder={
+                index < skillPlaceholders.length
+                  ? skillPlaceholders[index]
+                  : skillPlaceholders[index - 10]
+              }
+              value={skill.text}
+              onChange={(e) => onSkillChange(e, skill.id)}
+              onClick={() => onSkillDelete(skill.id)}
+            />
+          </Grid>
+        )
+      })}
+      <PrimarySecondaryButtons
+        primaryText='Done'
+        secondaryText='Add Skill'
+        onSkillAdd={onSkillAdd}
+        onDone={onDone}
+      />
+    </Grid>
   )
 }
 
