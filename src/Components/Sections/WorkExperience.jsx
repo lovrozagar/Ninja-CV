@@ -103,14 +103,13 @@ function WorkExperience({ onDelete }) {
   }
 
   function handleExperienceDelete(id) {
-    setWorkExperience((prev) =>
-      prev
-        .map((experience) => {
-          if (prev.index === 0) return newExperience
-          return experience
-        })
-        .filter((experience) => experience.id !== id)
-    )
+    setWorkExperience((prev) => {
+      if (prev.length === 1) {
+        return [newExperience]
+      } else {
+        return prev.filter((experience) => experience.id !== id)
+      }
+    })
   }
 
   function handlePointDelete(experienceId, pointId) {
@@ -270,9 +269,9 @@ function WorkExperienceEdit({
                     index + 1
                   }. Experience`}</Typography>
                   <DynamicButton
+                    mainColor='black'
                     type='button delete'
                     text='Remove'
-                    color='primary.main'
                     onClick={() => onExperienceDelete(work.id)}
                   />
                 </Flex>
@@ -280,7 +279,7 @@ function WorkExperienceEdit({
               <InputBlock
                 type='between'
                 color='primary.opposite'
-                bgcolor='primary.color'
+                bgcolor='primary.violet'
                 name='Company*'
                 placeholder={
                   index < companies.length
@@ -293,7 +292,7 @@ function WorkExperienceEdit({
               <InputBlock
                 type='between'
                 color='primary.opposite'
-                bgcolor='primary.color'
+                bgcolor='primary.violet'
                 name='Location'
                 placeholder={
                   index < locations.length
@@ -308,7 +307,7 @@ function WorkExperienceEdit({
               <InputBlock
                 type='start'
                 color='primary.opposite'
-                bgcolor='primary.color'
+                bgcolor='primary.violet'
                 name='Position*'
                 placeholder={
                   index < positions.length
@@ -321,7 +320,7 @@ function WorkExperienceEdit({
               <InputBlock
                 type='between no-button'
                 color='primary.opposite'
-                bgcolor='primary.color'
+                bgcolor='primary.violet'
                 name='Time*'
                 placeholder={
                   index < time.length
@@ -338,7 +337,7 @@ function WorkExperienceEdit({
                   key={point.id}
                   value={point.text}
                   color='primary.opposite'
-                  bgcolor='primary.color'
+                  bgcolor='primary.violet'
                   name={`${index + 1}. Point`}
                   placeholder={
                     index < bullets.length
@@ -350,11 +349,11 @@ function WorkExperienceEdit({
                 />
               )
             })}
-            <Flex type='center'>
+            <Flex>
               <DynamicButton
+                mainColor='black'
                 type='button add'
                 text='Add Point'
-                color='black'
                 onClick={() => onPointAdd(work.id)}
               />
             </Flex>
@@ -362,7 +361,8 @@ function WorkExperienceEdit({
         )
       })}
       <PrimarySecondaryButtons
-        text='Experience'
+        primaryText='Done'
+        secondaryText='Add Experience'
         onAdd={onAdd}
         onDone={onDone}
       />
