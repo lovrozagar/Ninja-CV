@@ -1,35 +1,41 @@
 import { Button, IconButton, Typography } from '@mui/material'
 import {
   Replay,
-  Delete,
   Add,
+  Done,
   HighlightOff,
   RemoveCircleOutlineOutlined,
   Clear,
 } from '@mui/icons-material'
+import Flex from '../Containers/Flex'
 
 function DynamicButton({ type, text, color, onClick, sx }) {
-  const [kind, icon, variant] = type ? type.split(' ') : [null, null, null]
+  const [kind, icon, variant, size] = type
+    ? type.split(' ')
+    : [null, null, null, null]
 
   let buttonIcon = null
   switch (icon) {
     case 'restore':
-      buttonIcon = <Replay />
+      buttonIcon = <Replay sx={{ fontSize: '1.25rem' }} />
       break
     case 'x':
-      buttonIcon = <Clear />
+      buttonIcon = <Clear sx={{ fontSize: '1.25rem' }} />
       break
     case 'minus':
-      buttonIcon = <RemoveCircleOutlineOutlined />
+      buttonIcon = <RemoveCircleOutlineOutlined sx={{ fontSize: '1.25rem' }} />
       break
     case 'delete':
-      buttonIcon = <Delete />
+      buttonIcon = <RemoveCircleOutlineOutlined sx={{ fontSize: '1.25rem' }} />
       break
     case 'remove':
-      buttonIcon = <HighlightOff />
+      buttonIcon = <HighlightOff sx={{ fontSize: '1.25rem' }} />
       break
     case 'add':
-      buttonIcon = <Add />
+      buttonIcon = <Add sx={{ fontSize: '1.25rem' }} />
+      break
+    case 'done':
+      buttonIcon = <Done sx={{ fontSize: '1.25rem' }} />
       break
     default:
       buttonIcon = null
@@ -39,22 +45,24 @@ function DynamicButton({ type, text, color, onClick, sx }) {
     <>
       {kind === 'icon' ? (
         <IconButton
-          size='small'
+          size={size || 'small'}
           variant={variant || 'text'}
           onClick={onClick}
-          sx={{ ...sx, color, textTransform: 'none' }}
+          sx={{ ...sx, color: color || 'primary.main', textTransform: 'none' }}
         >
           {buttonIcon}
         </IconButton>
       ) : (
         <Button
-          size='small'
+          size={size || 'small'}
           variant={variant || 'text'}
           onClick={onClick}
-          sx={{ ...sx, color, textTransform: 'none' }}
-          endIcon={buttonIcon}
+          sx={{ ...sx, color: color || 'primary.main', textTransform: 'none' }}
         >
-          {text !== null && <Typography fontSize={16}>{text}</Typography>}
+          <Flex type='center'>
+            {text}
+            {buttonIcon}
+          </Flex>
         </Button>
       )}
     </>
