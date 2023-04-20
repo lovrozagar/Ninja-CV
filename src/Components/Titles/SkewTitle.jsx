@@ -1,27 +1,38 @@
-import { Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import Flex from '../Containers/Flex'
+import Label from '../Containers/Label'
 
-function SkewTitle({ title }) {
+function SkewTitle({ title, htmlFor, color, bgcolor }) {
   return (
-    <Flex>
-      <SkewBox>
-        <Text title={title} />
-      </SkewBox>
-    </Flex>
+    <Label htmlFor={htmlFor}>
+      <Flex
+        sx={{
+          position: 'relative',
+          left: 4,
+          bgcolor,
+          borderRadius: '4px',
+          transform: 'skew(-15deg)',
+          pointerEvents: 'none',
+          '& p': { transform: 'skew(15deg)' },
+        }}
+      >
+        <SkewBox color={color} bgcolor={bgcolor}>
+          <Text title={title} />
+        </SkewBox>
+      </Flex>
+    </Label>
   )
 }
 
-function SkewBox({ children }) {
+function SkewBox({ children, color, bgcolor }) {
   return (
     <Flex
       sx={{
-        width: 'fit-content',
-        ml: 1,
         px: 1,
+        mx: 0.25,
         textAlign: 'left',
-        color: 'light.main',
-        bgcolor: 'dark.main',
-        transform: 'skew(-25deg)',
+        color,
+        bgcolor,
       }}
     >
       {children}
@@ -33,9 +44,7 @@ function Text({ title }) {
   return (
     <Typography
       sx={{
-        width: 'fit-content',
         fontWeight: '500',
-        transform: 'skew(25deg)',
       }}
     >
       {title}
