@@ -1,12 +1,4 @@
-import {
-  Box,
-  TextField,
-  FormControl,
-  Select,
-  MenuItem,
-  Typography,
-  Button,
-} from '@mui/material'
+import { Box } from '@mui/material'
 import {
   Email,
   LinkedIn,
@@ -16,31 +8,37 @@ import {
   Instagram,
   GitHub,
   Link,
-  Delete,
 } from '@mui/icons-material'
 import { useEffect, useMemo, useState } from 'react'
 import HoverContainer from '../Containers/HoverContainer'
-import PrimaryButton from '../Buttons/PrimaryButton'
-import SecondaryButton from '../Buttons/SecondaryButton'
+import SkewTitle from '../Titles/SkewTitle'
+import InputLogoBlock from '../Inputs/InputLogoBlock'
+import Grid from '../Containers/Grid'
+import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+import IndexDeleteTitle from '../Titles/IndexDeleteTitle'
+import InputBlock from '../Inputs/InputBlock'
 
 function Links() {
-  const defaultValue = useMemo(() => [
-    {
-      logo: 'Email',
-      link: 'lovro.zagar5@gmail.com',
-      name: 'Ninjamail',
-    },
-    {
-      logo: 'GitHub',
-      link: 'https://github.com/lovrozagar',
-      name: 'GitHub',
-    },
-    {
-      logo: 'LinkedIn',
-      link: 'https://www.linkedin.com/in/lovrozagar/',
-      name: 'LinkedIn',
-    },
-  ])
+  const defaultValue = useMemo(
+    () => [
+      {
+        logo: 'Email',
+        link: 'lovro.zagar5@gmail.com',
+        name: 'Ninjamail',
+      },
+      {
+        logo: 'GitHub',
+        link: 'https://github.com/lovrozagar',
+        name: 'GitHub',
+      },
+      {
+        logo: 'LinkedIn',
+        link: 'https://www.linkedin.com/in/lovrozagar/',
+        name: 'LinkedIn',
+      },
+    ],
+    []
+  )
   const [links, setLinks] = useState(defaultValue)
   const [onEdit, setOnEdit] = useState(false)
   const [editCheck, setEditCheck] = useState(false)
@@ -106,7 +104,7 @@ function Links() {
     return logo
   }
 
-  function addLink() {
+  function handleLinkAdd() {
     setLinks((prevLinks) => [...prevLinks, { logo: '', link: '', name: '' }])
   }
 
@@ -115,7 +113,7 @@ function Links() {
     console.log(onEdit)
   }
 
-  function handleLinkNameChange(e, index) {
+  function handlePlaceholderChange(e, index) {
     setLinks((prevLinks) =>
       prevLinks.map((link, linkIndex) => {
         return index === linkIndex ? { ...link, name: e.target.value } : link
@@ -131,7 +129,7 @@ function Links() {
     )
   }
 
-  function handleSelect(e, index) {
+  function handleLogoSelect(e, index) {
     setLinks((prevLinks) =>
       prevLinks.map((link, linkIndex) => {
         return index === linkIndex ? { ...link, logo: e.target.value } : link
@@ -152,132 +150,89 @@ function Links() {
           gap: '0.5rem',
         }}
       >
-        {links.map((link, index) => {
-          return onEdit ? (
-            <div key={index}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  m: '0 0.5rem 0.25rem 0.5rem',
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      width: 'fit-content',
-                      px: 1,
-                      textAlign: 'left',
-                      color: 'white',
-                      bgcolor: 'black',
-                      transform: 'skew(-25deg)',
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        width: 'fit-content',
-                        fontWeight: '500',
-                        transform: 'skew(25deg)',
-                      }}
-                    >
-                      {index + 1}. Link
-                    </Typography>
-                  </Box>
-                </Box>
-                <Button onClick={() => handleLinkDelete(index)}>
-                  <Delete />
-                </Button>
-              </Box>
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'auto 1fr',
-                  gap: '0.5rem',
-                }}
-              >
-                <FormControl fullWidth>
-                  <Select
-                    value={link.logo || 'link'}
-                    onChange={(e) => handleSelect(e, index)}
-                    size='small'
-                    sx={{
-                      maxHeight: '40px',
-                      lineHeight: 0,
-                    }}
-                  >
-                    <MenuItem value='link'>
-                      <Link />
-                    </MenuItem>
-                    <MenuItem value='Phone'>
-                      <Phone />
-                    </MenuItem>
-                    <MenuItem value='Address'>
-                      <Home />
-                    </MenuItem>
-                    <MenuItem value='Email'>
-                      <Email />
-                    </MenuItem>
-                    <MenuItem value='Facebook'>
-                      <Facebook />
-                    </MenuItem>
-                    <MenuItem value='Instagram'>
-                      <Instagram />
-                    </MenuItem>
-                    <MenuItem value='LinkedIn'>
-                      <LinkedIn />
-                    </MenuItem>
-                    <MenuItem value='GitHub'>
-                      <GitHub />
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-                <TextField
-                  placeholder='Link name'
-                  value={link.name}
-                  onChange={(e) => handleLinkNameChange(e, index)}
-                  size='small'
-                />
-                <TextField
-                  placeholder='Full URL'
-                  value={link.link}
-                  onChange={(e) => handleLinkChange(e, index)}
-                  size='small'
-                  sx={{ gridColumn: '1/3' }}
-                />
-              </Box>
-            </div>
-          ) : (
-            <Box
-              key={index}
-              sx={{ display: 'flex', alignContent: 'center', gap: '0.25rem' }}
-            >
-              {getLinkLogo(link.logo)}
-              <div
-                sx={{
-                  display: 'flex',
-                }}
-              >
-                {link.name}
-              </div>
-            </Box>
-          )
-        })}
-        {onEdit && (
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '0.5rem',
-              mt: links.length ? '1rem' : '0',
-            }}
-          >
-            <SecondaryButton onClick={addLink}>Add Link</SecondaryButton>
-            <PrimaryButton onClick={handleDone}>Done</PrimaryButton>
-          </Box>
+        {onEdit ? (
+          <LinksEdit
+            links={links}
+            onLinkAdd={handleLinkAdd}
+            onLinkChange={handleLinkChange}
+            onLinkDelete={handleLinkDelete}
+            onPlaceholderChange={handlePlaceholderChange}
+            onLogoSelect={handleLogoSelect}
+            onDone={handleDone}
+          />
+        ) : (
+          <div></div>
         )}
       </Box>
     </HoverContainer>
+  )
+}
+
+function LinksEdit({
+  links,
+  onLinkAdd,
+  onLinkChange,
+  onLinkDelete,
+  onPlaceholderChange,
+  onLogoSelect,
+  onDone,
+}) {
+  return (
+    <Grid gap={1.5}>
+      <SkewTitle
+        title='Links: URL | Email | Custom'
+        color='primary.opposite'
+        bgcolor='primary.main'
+      />
+      {links.map((link, index) => {
+        return (
+          <Box key={index}>
+            <Grid type='1fr 100px'>
+              <Box gridColumn='1/3'>
+                <IndexDeleteTitle
+                  title={`${index + 1}. Link`}
+                  onDelete={() => onLinkDelete(index)}
+                />
+              </Box>
+              <InputBlock
+                htmlFor={`placeholder-${index}`}
+                name='Placeholder'
+                color='primary.opposite'
+                bgcolor='primary.violet'
+                placeholder='Link name'
+                value={link.name}
+                onChange={(e) => onPlaceholderChange(e, index)}
+                size='small'
+              />
+              <InputLogoBlock
+                name='Logo'
+                color='primary.opposite'
+                bgcolor='primary.violet'
+                link={link}
+                onLogoSelect={(e) => onLogoSelect(e, index)}
+              />
+              <Grid sx={{ gridColumn: '1/3' }}>
+                <InputBlock
+                  htmlFor={`hyperlink-${index}`}
+                  name='Hyperlink'
+                  color='primary.opposite'
+                  bgcolor='primary.violet'
+                  placeholder='Full URL'
+                  value={link.link}
+                  onChange={(e) => onLinkChange(e, index)}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+        )
+      })}
+      <PrimarySecondaryButtons
+        primaryText='Done'
+        secondaryText='Add Link'
+        onAdd={onLinkAdd}
+        onDone={onDone}
+      />
+    </Grid>
   )
 }
 
