@@ -1,7 +1,7 @@
 import { Box } from '@mui/material'
 
 function Flex({ children, type, gap, sx }) {
-  const space = gap ? gap : 1
+  const space = gap || gap === 0 ? gap : 1
   let justifyContent = null
 
   switch (type) {
@@ -27,11 +27,12 @@ function Flex({ children, type, gap, sx }) {
   return (
     <Box
       sx={{
-        ...sx,
         display: 'flex',
         flexWrap: 'wrap',
+        alignItems: 'center',
         justifyContent,
         gap: space,
+        ...sx,
       }}
     >
       {children}

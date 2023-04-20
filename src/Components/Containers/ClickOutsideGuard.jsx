@@ -22,15 +22,32 @@ function ClickOutsideGuard({ children, onClickOutside, onOutsideHold }) {
       }
     }
 
+    function handleHoldOutside(e) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target))
+        onOutsideHold()
+    }
+
     document.addEventListener('mousedown', handleClickOutside)
     document.addEventListener('touchstart', handleClickOutside)
+    document.addEventListener('mousemove', handleHoldOutside)
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('touchstart', handleClickOutside)
+      document.addEventListener('mousemove', handleHoldOutside)
     }
-  }, [onClickOutside])
+  }, [onClickOutside, onOutsideHold])
 
-  return <Box ref={wrapperRef}>{children}</Box>
+  return (
+    <Box
+      sx={{
+        webkitTouchCallout: 'none !important',
+        webkitUserSelect: 'none !important',
+      }}
+      ref={wrapperRef}
+    >
+      {children}
+    </Box>
+  )
 }
 export default ClickOutsideGuard
