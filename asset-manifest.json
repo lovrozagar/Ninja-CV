@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Ninja-CV/static/css/main.8305d261.css",
+    "main.js": "/Ninja-CV/static/js/main.c632aecf.js",
+    "index.html": "/Ninja-CV/index.html",
+    "main.8305d261.css.map": "/Ninja-CV/static/css/main.8305d261.css.map",
+    "main.c632aecf.js.map": "/Ninja-CV/static/js/main.c632aecf.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8305d261.css",
+    "static/js/main.c632aecf.js"
+  ]
+}
