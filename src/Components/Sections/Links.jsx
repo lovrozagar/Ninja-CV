@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import { Box } from '@mui/material'
 import {
   Email,
@@ -9,14 +10,14 @@ import {
   GitHub,
   Link,
 } from '@mui/icons-material'
-import { useEffect, useMemo, useState } from 'react'
 import HoverContainer from '../Containers/HoverContainer'
-import SkewTitle from '../Titles/SkewTitle'
-import InputLogoBlock from '../Inputs/InputLogoBlock'
 import Grid from '../Containers/Grid'
-import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+import Flex from '../Containers/Flex'
 import IndexDeleteTitle from '../Titles/IndexDeleteTitle'
+import SkewTitle from '../Titles/SkewTitle'
 import InputBlock from '../Inputs/InputBlock'
+import InputLogoBlock from '../Inputs/InputLogoBlock'
+import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 
 function Links() {
   const defaultValue = useMemo(
@@ -110,7 +111,6 @@ function Links() {
 
   function handleDone() {
     setOnEdit(false)
-    console.log(onEdit)
   }
 
   function handlePlaceholderChange(e, index) {
@@ -161,7 +161,7 @@ function Links() {
             onDone={handleDone}
           />
         ) : (
-          <div></div>
+          <LinksView links={links} getLinkLogo={getLinkLogo} />
         )}
       </Box>
     </HoverContainer>
@@ -233,6 +233,21 @@ function LinksEdit({
         onDone={onDone}
       />
     </Grid>
+  )
+}
+
+function LinksView({ links, getLinkLogo }) {
+  return (
+    <Flex type='center'>
+      {links.map((link, index) => {
+        return (
+          <Flex key={index}>
+            <Flex>{getLinkLogo(link.logo)}</Flex>
+            <Flex>{link.name}</Flex>
+          </Flex>
+        )
+      })}
+    </Flex>
   )
 }
 
