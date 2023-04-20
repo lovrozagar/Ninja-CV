@@ -1,60 +1,43 @@
-import { useRef } from 'react'
-import { Box, TextField } from '@mui/material'
+import { TextField } from '@mui/material'
 import Flex from '../Containers/Flex'
-import SkewTitle from '../Titles/SkewTitle'
-import ResetButton from '../Buttons/ResetButton'
-import ClearButton from '../Buttons/ClearButton'
-import DeleteButton from '../Buttons/DeleteButton'
 import Grid from '../Containers/Grid'
+import SkewTitle from '../Titles/SkewTitle'
+import DynamicButton from '../Buttons/DynamicButton'
 
 function InputBlock({
   name,
   value,
-  type,
+  button,
+  htmlFor,
   color,
   bgcolor,
   placeholder,
-  onClick,
   onChange,
-  onClear,
+  onClick,
 }) {
-  const [flow, button] = type ? type.split(' ') : [null, null]
-
-  let component = null
-  if (button === 'reset') component = <ResetButton onClick={onClick} />
-  else if (button === 'delete') component = <DeleteButton onClick={onClick} />
-  else
-    component = (
-      <Box visibility='hidden'>
-        <DeleteButton />
-      </Box>
-    )
-
   return (
     <Grid gap={0.5}>
-      <Flex
-        type={flow}
-        sx={{
-          width: '99.5%',
-          position: 'relative',
-          left: 4,
-          bgcolor,
-          borderRadius: '4px',
-          transform: 'skew(-15deg)',
-          '& p, & button': { transform: 'skew(15deg)' },
-        }}
-      >
-        <SkewTitle title={name} color={color} bgcolor={bgcolor} />
-      </Flex>
+      <SkewTitle
+        title={name}
+        htmlFor={htmlFor}
+        color={color}
+        bgcolor={bgcolor}
+      />
       <TextField
+        id={htmlFor}
         size='small'
         fullWidth
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        gutterBottom
         InputProps={{
-          endAdornment: component,
+          endAdornment: (
+            <DynamicButton
+              mainColor='black'
+              type={`icon ${button || null}`}
+              onClick={onClick}
+            />
+          ),
         }}
       />
     </Grid>

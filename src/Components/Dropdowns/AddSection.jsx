@@ -1,12 +1,20 @@
 import { Box, FormControl, Select, MenuItem } from '@mui/material'
+import { useEffect, useState } from 'react'
 import HoverContainer from '../Containers/HoverContainer'
 
-function AddSection() {
+function AddSection({ onAdd }) {
+  const defaultValue = 'Add Section'
+  const [selectedValue, setSelectedValue] = useState(defaultValue)
+
+  useEffect(() => {
+    if (selectedValue !== 'Add Section') setSelectedValue(defaultValue)
+  }, [selectedValue])
+
   return (
-    <Box sx={{ width: 'max(50%, 150px)', margin: '0.5rem auto 0 auto' }}>
+    <Box sx={{ width: 'max(25%, 175px)', margin: '0.5rem 0 0 auto' }}>
       <HoverContainer fn={() => {}}>
         <FormControl fullWidth>
-          <Select size='small' defaultValue='Add Section'>
+          <Select size='small' value={selectedValue} onChange={onAdd}>
             <MenuItem
               value='Add Section'
               sx={{

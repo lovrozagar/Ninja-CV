@@ -1,8 +1,8 @@
 import { TextField } from '@mui/material'
 import Flex from '../Containers/Flex'
 import SkewTitle from '../Titles/SkewTitle'
-import DeleteButton from '../Buttons/DeleteButton'
 import Grid from '../Containers/Grid'
+import DynamicButton from '../Buttons/DynamicButton'
 
 function InputAreaBlock({
   value,
@@ -11,6 +11,7 @@ function InputAreaBlock({
   color,
   bgcolor,
   onChange,
+  onDelete,
 }) {
   return (
     <Grid gap={0.35}>
@@ -38,9 +39,7 @@ function InputAreaBlock({
         onChange={onChange}
         InputProps={{
           endAdornment: (
-            <>
-              <DeleteButton color='#666' />
-            </>
+            <DynamicButton mainColor='black' type='icon x' onClick={onDelete} />
           ),
         }}
       />
