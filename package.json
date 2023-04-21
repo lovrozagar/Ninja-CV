@@ -14,11 +14,14 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "react-to-print": "^2.14.12",
+    "uniqid": "^5.4.0",
+    "use-long-press": "^2.0.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build --source-map",
+    "deploy": "gh-pages -d build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -39,5 +42,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
+  },
+  "homepage": "http://lovrozagar.github.io/Ninja-CV"
 }
