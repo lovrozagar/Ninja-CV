@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Grid from '../Containers/Grid'
+import SectionTitleView from '../Titles/SectionTitleView'
 import InputBlock from '../Inputs/InputBlock'
 import InputAreaBlock from '../Inputs/InputAreaBlock'
 import uniqid from 'uniqid'
@@ -52,7 +53,7 @@ function AboutMe({ onDelete }) {
             onParagraphChange={handleParagraphChange}
           />
         ) : (
-          <div></div>
+          <AboutMeView title={title} aboutMe={aboutMe} />
         )}
       </Grid>
     </HoverContainer>
@@ -89,6 +90,23 @@ function AboutMeEdit({
           />
         )
       })}
+    </Grid>
+  )
+}
+
+function AboutMeView({ title, aboutMe }) {
+  return (
+    <Grid gap={0}>
+      <SectionTitleView title={title} />
+      <Grid>
+        {aboutMe.map((paragraph) => {
+          return (
+            <Typography pl={1.5} fontSize={13} textAlign='left'>
+              {paragraph.text}
+            </Typography>
+          )
+        })}
+      </Grid>
     </Grid>
   )
 }
