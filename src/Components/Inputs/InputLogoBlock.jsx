@@ -18,7 +18,7 @@ function InputLogoBlock({ name, color, bgcolor, link, onLogoSelect }) {
   const style = { justifyContent: 'center' }
 
   return (
-    <Grid>
+    <Grid gap={0.5}>
       <Box
         onClick={() => {
           selectRef.current.click()

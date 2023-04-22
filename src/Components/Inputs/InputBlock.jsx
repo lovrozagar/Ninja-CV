@@ -1,43 +1,46 @@
+import { useRef } from 'react'
 import { TextField } from '@mui/material'
-import Flex from '../Containers/Flex'
 import Grid from '../Containers/Grid'
 import SkewTitle from '../Titles/SkewTitle'
 import DynamicButton from '../Buttons/DynamicButton'
+import uniqid from 'uniqid'
 
 function InputBlock({
   name,
   value,
   button,
-  htmlFor,
   color,
   bgcolor,
   placeholder,
   onChange,
   onClick,
 }) {
+  const connectFocus = useRef(uniqid())
+
+  const endButton = button ? (
+    <DynamicButton
+      mainColor='black'
+      type={`icon ${button || null}`}
+      onClick={onClick}
+    />
+  ) : null
+
   return (
     <Grid gap={0.5}>
       <SkewTitle
+        htmlFor={connectFocus.current}
         title={name}
-        htmlFor={htmlFor}
         color={color}
         bgcolor={bgcolor}
       />
       <TextField
-        id={htmlFor}
+        id={connectFocus.current}
         size='small'
-        fullWidth
         value={value}
         onChange={onChange}
         placeholder={placeholder}
         InputProps={{
-          endAdornment: (
-            <DynamicButton
-              mainColor='black'
-              type={`icon ${button || null}`}
-              onClick={onClick}
-            />
-          ),
+          endAdornment: endButton,
         }}
       />
     </Grid>

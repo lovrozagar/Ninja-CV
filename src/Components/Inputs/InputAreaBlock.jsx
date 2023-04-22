@@ -1,8 +1,9 @@
+import { useRef } from 'react'
 import { TextField } from '@mui/material'
-import Flex from '../Containers/Flex'
-import SkewTitle from '../Titles/SkewTitle'
 import Grid from '../Containers/Grid'
+import SkewTitle from '../Titles/SkewTitle'
 import DynamicButton from '../Buttons/DynamicButton'
+import uniqid from 'uniqid'
 
 function InputAreaBlock({
   value,
@@ -13,24 +14,18 @@ function InputAreaBlock({
   onChange,
   onDelete,
 }) {
+  const connectFocus = useRef(uniqid())
+
   return (
-    <Grid gap={0.35}>
-      <Flex
-        type='between'
-        sx={{
-          width: '99.5%',
-          position: 'relative',
-          left: 4,
-          bgcolor,
-          borderRadius: '4px',
-          transform: 'skew(-15deg)',
-          '& p, & button': { transform: 'skew(15deg)' },
-        }}
-      >
-        <SkewTitle title={name} color={color} bgcolor={bgcolor} />
-      </Flex>
+    <Grid gap={0.5}>
+      <SkewTitle
+        htmlFor={connectFocus.current}
+        title={name}
+        color={color}
+        bgcolor={bgcolor}
+      />
       <TextField
-        fullWidth
+        id={connectFocus.current}
         size='small'
         value={value}
         placeholder={placeholder}
