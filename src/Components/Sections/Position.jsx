@@ -9,8 +9,8 @@ import DynamicButton from '../Buttons/DynamicButton'
 import Placeholders from '../../Functions/placeholders'
 
 function Position({ onDelete }) {
-  const [position, setPosition] = useState('')
   const [onEdit, setOnEdit] = useState(false)
+  const [position, setPosition] = useState('')
   const [placeholder, setPlaceholder] = useState(
     Placeholders.getPositionRandom()
   )

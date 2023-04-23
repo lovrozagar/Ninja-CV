@@ -21,10 +21,11 @@ import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 import Placeholders from '../../Functions/placeholders'
 
 function Links({ onDelete }) {
+  const [onEdit, setOnEdit] = useState(false)
   const defaultValue = useMemo(
     () => [
       {
-        placeholder: 'Ninjamail',
+        placeholder: 'Email',
         hyperlink: 'lovro.zagar5@gmail.com',
         logo: 'Email',
       },
@@ -42,7 +43,6 @@ function Links({ onDelete }) {
     []
   )
   const [links, setLinks] = useState(defaultValue)
-  const [onEdit, setOnEdit] = useState(false)
 
   function getLinkLogo(logoName) {
     let logo
