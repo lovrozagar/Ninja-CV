@@ -1,32 +1,23 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Box } from '@mui/material'
-import uniqid from 'uniqid'
+import HoverContainer from '../Containers/HoverContainer'
 import Flex from '../Containers/Flex'
 import Grid from '../Containers/Grid'
-import HoverContainer from '../Containers/HoverContainer'
 import SectionTitleView from '../Titles/SectionTitleView'
 import PrimaryDescription from '../Text/PrimaryDescription'
 import SecondaryDescription from '../Text/SecondaryDescription'
+import IndexDeleteTitle from '../Titles/IndexDeleteTitle'
 import InputBlock from '../Inputs/InputBlock'
 import InputAreaBlock from '../Inputs/InputAreaBlock'
 import Points from '../Text/Points'
-import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 import DynamicButton from '../Buttons/DynamicButton'
-import IndexDeleteTitle from '../Titles/IndexDeleteTitle'
+import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+import Placeholders from '../../Functions/placeholders'
+import uniqid from 'uniqid'
 
 function Education({ onDelete }) {
-  // INIT VALUES
+  const [onEdit, setOnEdit] = useState(false)
   const defaultTitle = 'Education'
-  const newEducation = {
-    company: '',
-    location: '',
-    position: '',
-    time: '',
-    points: [{ text: '', id: uniqid() }],
-    id: uniqid(),
-  }
-
-  // HOOKS
   const defaultEducation = useMemo(
     () => [
       {
@@ -45,61 +36,35 @@ function Education({ onDelete }) {
     ],
     []
   )
-  const [education, setEducation] = useState(defaultEducation)
   const [title, setTitle] = useState(defaultTitle)
-  const [onEdit, setOnEdit] = useState(false)
-
-  // Delete Empty Work Experiences or Points
-  useEffect(() => {
-    if (!onEdit) {
-      setEducation((prev) =>
-        prev
-          .map((education) => {
-            const usedPoints = education.points.filter(
-              (point) => point.text.trim() !== ''
-            )
-            return { ...education, points: usedPoints }
-          })
-          .filter((work) => {
-            if (
-              work.school.trim() === '' &&
-              work.location.trim() === '' &&
-              work.profession.trim() === '' &&
-              work.time.trim() === ''
-            )
-              return false
-            return true
-          })
-      )
-    }
-  }, [onEdit])
-
-  // HANDLERS
-  function handleTitleReset() {
-    setTitle(defaultTitle)
+  const [education, setEducation] = useState(defaultEducation)
+  const newEducation = {
+    school: '',
+    location: '',
+    profession: '',
+    time: '',
+    points: [{ text: '', id: uniqid() }],
+    id: uniqid(),
   }
+  const newPoint = { text: '', id: uniqid() }
 
   function handleTitleChange(e) {
     setTitle(e.target.value)
   }
 
-  function handleChange(e, id, property, pointsIndex = null) {
+  function handleTitleReset() {
+    setTitle(defaultTitle)
+  }
+
+  function handleEducationAdd() {
+    setEducation((prev) => [...prev, newEducation])
+  }
+
+  function handleEducationChange(e, id, property) {
     setEducation((prev) =>
-      prev.map((education) => {
-        if (education.id !== id) return education
-
-        if (pointsIndex !== null) {
-          const points = [...education.points]
-          const point = {
-            ...points[pointsIndex],
-            text: e.target.value,
-          }
-          points[pointsIndex] = point
-
-          return { ...education, points }
-        }
-
-        return { ...education, [property]: e.target.value }
+      prev.map((ed) => {
+        if (ed.id !== id) return ed
+        return { ...ed, [property]: e.target.value }
       })
     )
   }
@@ -109,65 +74,102 @@ function Education({ onDelete }) {
       if (prev.length === 1) {
         return [newEducation]
       } else {
-        return prev.filter((education) => education.id !== id)
+        return prev.filter((ed) => ed.id !== id)
       }
     })
   }
 
-  function handlePointDelete(educationId, pointId) {
-    setEducation((prev) =>
-      prev.map((education) => {
-        if (education.id !== educationId) return education
-
-        const newPoints = education.points.filter(
-          (point) => point.id !== pointId
-        )
-
-        return { ...education, points: newPoints }
-      })
-    )
-  }
-
   function handlePointAdd(id) {
     setEducation((prev) =>
-      prev.map((education) => {
-        if (education.id !== id) return education
+      prev.map((ed) => {
+        if (ed.id !== id) return ed
 
         return {
-          ...education,
-          points: [...education.points, { text: '', id: uniqid() }],
+          ...ed,
+          points: [...ed.points, newPoint],
         }
       })
     )
   }
 
-  function handleAdd() {
-    setEducation((prev) => [...prev, newEducation])
+  function handlePointChange(e, educationId, pointId) {
+    setEducation((prev) =>
+      prev.map((ed) => {
+        if (ed.id !== educationId) return ed
+        const newPoints = ed.points.map((point) => {
+          if (point.id !== pointId) return point
+          return { ...point, text: e.target.value }
+        })
+        return { ...ed, points: newPoints }
+      })
+    )
+  }
+
+  function handlePointDelete(educationId, pointId) {
+    setEducation((prev) =>
+      prev.map((ed) => {
+        if (ed.id !== educationId) return ed
+
+        const newPoints = ed.points.filter((point) => point.id !== pointId)
+
+        return { ...ed, points: newPoints }
+      })
+    )
   }
 
   function handleDone() {
     setOnEdit(false)
   }
 
+  useEffect(() => {
+    if (!onEdit) {
+      setEducation((prev) =>
+        prev
+          // Remove unnecessary spaces
+          .map((ed) => {
+            const usedPoints = ed.points
+              .map((point) => ({ ...point, text: point.text.trim() }))
+              // Delete Empty Points
+              .filter((point) => point.text !== '')
+            return {
+              ...ed,
+              company: ed.school.trim(),
+              location: ed.location.trim(),
+              position: ed.profession.trim(),
+              time: ed.time.trim(),
+              points: usedPoints,
+            }
+          })
+          // Delete Empty Education
+          .filter((ed) => {
+            if (
+              ed.school === '' &&
+              ed.location === '' &&
+              ed.profession === '' &&
+              ed.time === ''
+            )
+              return false
+            return true
+          })
+      )
+    }
+  }, [onEdit])
+
   return (
-    <HoverContainer
-      margin='wide'
-      fn={setOnEdit}
-      onEdit={onEdit}
-      onDelete={onDelete}
-    >
+    <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
       <Grid>
         {onEdit ? (
           <EducationEdit
             title={title}
-            onTitleReset={handleTitleReset}
             onTitleChange={handleTitleChange}
+            onTitleReset={handleTitleReset}
             education={education}
+            onEducationAdd={handleEducationAdd}
+            onEducationChange={handleEducationChange}
             onEducationDelete={handleEducationDelete}
-            onChange={handleChange}
             onPointAdd={handlePointAdd}
+            onPointChange={handlePointChange}
             onPointDelete={handlePointDelete}
-            onAdd={handleAdd}
             onDone={handleDone}
           />
         ) : (
@@ -180,75 +182,17 @@ function Education({ onDelete }) {
 
 function EducationEdit({
   title,
-  onTitleReset,
   onTitleChange,
+  onTitleReset,
   education,
+  onEducationAdd,
+  onEducationChange,
   onEducationDelete,
-  onChange,
   onPointAdd,
+  onPointChange,
   onPointDelete,
-  onAdd,
   onDone,
 }) {
-  const schools = [
-    'MIT',
-    'Caltech',
-    'Duke University',
-    'Yale University',
-    'Harvard University',
-    'Stanford University',
-    'Columbia University',
-    'Princeton University',
-    'University of Chicago',
-    'Johns Hopkins University',
-  ]
-
-  const locations = [
-    'Zagreb, HR',
-    'Tokyo, JP',
-    'Remote',
-    'Berlin, DE',
-    'San Francisco, CA',
-  ]
-
-  const professions = [
-    'Computer Science',
-    'Nursing',
-    'Psychology',
-    'Business Administration',
-    'Engineering',
-    'Education',
-    'Graphic Design',
-    'Journalism',
-    'Criminal Justice',
-    'Marketing',
-  ]
-
-  const time = [
-    'Jan 2020 - Present',
-    'Feb 2020 - Present',
-    'Apr 2021 - Jun 2021',
-    'Jul 2021 - Sep 2021',
-    'Oct 2021 - Dec 2021',
-    'Jan 2022 - Mar 2022',
-    'Apr 2022 - Jun 2022',
-    'Jul 2022 - Sep 2022',
-    'Oct 2022 - Dec 2022',
-  ]
-
-  const bullets = [
-    'Managed social media campaigns',
-    'Analyzed campaign performance data',
-    'Created visual content for social',
-    'Interacted with customers online',
-    'Developed social media strategies',
-    'Designed mobile app UI',
-    'Developed user-friendly interfaces',
-    'Collaborated with development team',
-    'Conducted user research studies',
-    'Created wireframes and prototypes',
-  ]
-
   return (
     <Grid>
       <InputBlock
@@ -275,25 +219,17 @@ function EducationEdit({
                 color='primary.opposite'
                 bgcolor='primary.violet'
                 name='School*'
-                placeholder={
-                  index < schools.length
-                    ? `e.g. ${schools[index]}`
-                    : `e.g. ${schools[index - 10]}`
-                }
+                placeholder={Placeholders.getSchool(index)}
                 value={ed.school}
-                onChange={(e) => onChange(e, ed.id, 'school')}
+                onChange={(e) => onEducationChange(e, ed.id, 'school')}
               />
               <InputBlock
                 color='primary.opposite'
                 bgcolor='primary.violet'
                 name='Location'
-                placeholder={
-                  index < locations.length
-                    ? `e.g. ${locations[index]}`
-                    : `e.g. ${locations[index - 5]}`
-                }
+                placeholder={Placeholders.getLocation(index)}
                 value={ed.location}
-                onChange={(e) => onChange(e, ed.id, 'location')}
+                onChange={(e) => onEducationChange(e, ed.id, 'location')}
               />
             </Grid>
             <Grid type='1fr 1fr'>
@@ -301,25 +237,17 @@ function EducationEdit({
                 color='primary.opposite'
                 bgcolor='primary.violet'
                 name='Profession / Certification*'
-                placeholder={
-                  index < professions.length
-                    ? `e.g. ${professions[index]}`
-                    : `e.g. ${professions[index - 10]}`
-                }
+                placeholder={Placeholders.getProfession(index)}
                 value={ed.profession}
-                onChange={(e) => onChange(e, ed.id, 'profession')}
+                onChange={(e) => onEducationChange(e, ed.id, 'profession')}
               />
               <InputBlock
                 color='primary.opposite'
                 bgcolor='primary.violet'
                 name='Time*'
-                placeholder={
-                  index < time.length
-                    ? `e.g. ${time[index]}`
-                    : `e.g. ${time[index - 10]}`
-                }
+                placeholder={Placeholders.getTime(index)}
                 value={ed.time}
-                onChange={(e) => onChange(e, ed.id, 'time')}
+                onChange={(e) => onEducationChange(e, ed.id, 'time')}
               />
             </Grid>
             {ed.points.map((point, index) => {
@@ -330,12 +258,8 @@ function EducationEdit({
                   color='primary.opposite'
                   bgcolor='primary.violet'
                   name={`${index + 1}. Point`}
-                  placeholder={
-                    index < bullets.length
-                      ? `e.g. ${bullets[index]}`
-                      : `e.g. ${bullets[index - 10]}`
-                  }
-                  onChange={(e) => onChange(e, ed.id, 'text', index)}
+                  placeholder={Placeholders.getEducationPoint(index)}
+                  onChange={(e) => onPointChange(e, ed.id, point.id)}
                   onDelete={() => onPointDelete(ed.id, point.id)}
                 />
               )
@@ -354,7 +278,7 @@ function EducationEdit({
       <PrimarySecondaryButtons
         primaryText='Done'
         secondaryText='Add Education'
-        onAdd={onAdd}
+        onAdd={onEducationAdd}
         onDone={onDone}
       />
     </Grid>
@@ -369,18 +293,13 @@ function EducationView({ title, education }) {
         {education.map((ed) => {
           return (
             <Box key={ed.id}>
-              {ed.school.trim() !== '' &&
-                ed.profession.trim() !== '' &&
-                ed.time.trim() !== '' && (
-                  <Box key={ed.id}>
-                    <PrimaryDescription left={ed.school} right={ed.location} />
-                    <SecondaryDescription
-                      left={ed.profession}
-                      right={ed.time}
-                    />
-                    <Points array={ed.points} />
-                  </Box>
-                )}
+              {ed.school !== '' && ed.profession !== '' && ed.time !== '' && (
+                <Box key={ed.id}>
+                  <PrimaryDescription left={ed.school} right={ed.location} />
+                  <SecondaryDescription left={ed.profession} right={ed.time} />
+                  <Points array={ed.points} />
+                </Box>
+              )}
             </Box>
           )
         })}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Box, Typography } from '@mui/material'
+import { Box } from '@mui/material'
 import uniqid from 'uniqid'
 import Flex from '../Containers/Flex'
 import Grid from '../Containers/Grid'
@@ -12,21 +12,12 @@ import InputAreaBlock from '../Inputs/InputAreaBlock'
 import Points from '../Text/Points'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 import DynamicButton from '../Buttons/DynamicButton'
+import IndexDeleteTitle from '../Titles/IndexDeleteTitle'
+import Placeholders from '../../Functions/placeholders'
 
 function WorkExperience({ onDelete }) {
-  // INIT VALUES
+  const [onEdit, setOnEdit] = useState(false)
   const defaultTitle = 'Work Experience'
-  const newExperience = {
-    title: defaultTitle,
-    company: '',
-    location: '',
-    position: '',
-    time: '',
-    points: [{ text: '', id: uniqid() }],
-    id: uniqid(),
-  }
-
-  // HOOKS
   const defaultWorkExperience = useMemo(
     () => [
       {
@@ -43,60 +34,34 @@ function WorkExperience({ onDelete }) {
     ],
     []
   )
-  const [workExperience, setWorkExperience] = useState(defaultWorkExperience)
   const [title, setTitle] = useState(defaultTitle)
-  const [onEdit, setOnEdit] = useState(false)
-
-  // Delete Empty Work Experiences or Points
-  useEffect(() => {
-    if (!onEdit) {
-      setWorkExperience((prev) =>
-        prev
-          .map((work) => {
-            const usedPoints = work.points.filter(
-              (point) => point.text.trim() !== ''
-            )
-            return { ...work, points: usedPoints }
-          })
-          .filter((work) => {
-            if (
-              work.company.trim() === '' &&
-              work.location.trim() === '' &&
-              work.position.trim() === '' &&
-              work.time.trim() === ''
-            )
-              return false
-            return true
-          })
-      )
-    }
-  }, [onEdit])
-
-  // HANDLERS
-  function handleTitleReset() {
-    setTitle(defaultTitle)
+  const [workExperience, setWorkExperience] = useState(defaultWorkExperience)
+  const newExperience = {
+    company: '',
+    location: '',
+    position: '',
+    time: '',
+    points: [{ text: '', id: uniqid() }],
+    id: uniqid(),
   }
+  const newPoint = { text: '', id: uniqid() }
 
   function handleTitleChange(e) {
     setTitle(e.target.value)
   }
 
-  function handleChange(e, id, property, pointsIndex = null) {
+  function handleTitleReset() {
+    setTitle(defaultTitle)
+  }
+
+  function handleExperienceAdd() {
+    setWorkExperience((prev) => [...prev, newExperience])
+  }
+
+  function handleExperienceChange(e, id, property) {
     setWorkExperience((prev) =>
       prev.map((experience) => {
         if (experience.id !== id) return experience
-
-        if (pointsIndex !== null) {
-          const points = [...experience.points]
-          const point = {
-            ...points[pointsIndex],
-            text: e.target.value,
-          }
-          points[pointsIndex] = point
-
-          return { ...experience, points }
-        }
-
         return { ...experience, [property]: e.target.value }
       })
     )
@@ -110,6 +75,32 @@ function WorkExperience({ onDelete }) {
         return prev.filter((experience) => experience.id !== id)
       }
     })
+  }
+
+  function handlePointAdd(id) {
+    setWorkExperience((prev) =>
+      prev.map((experience) => {
+        if (experience.id !== id) return experience
+
+        return {
+          ...experience,
+          points: [...experience.points, newPoint],
+        }
+      })
+    )
+  }
+
+  function handlePointChange(e, educationId, pointId) {
+    setWorkExperience((prev) =>
+      prev.map((experience) => {
+        if (experience.id !== educationId) return experience
+        const newPoints = experience.points.map((point) => {
+          if (point.id !== pointId) return point
+          return { ...point, text: e.target.value }
+        })
+        return { ...experience, points: newPoints }
+      })
+    )
   }
 
   function handlePointDelete(experienceId, pointId) {
@@ -126,34 +117,46 @@ function WorkExperience({ onDelete }) {
     )
   }
 
-  function handlePointAdd(id) {
-    setWorkExperience((prev) =>
-      prev.map((experience) => {
-        if (experience.id !== id) return experience
-
-        return {
-          ...experience,
-          points: [...experience.points, { text: '', id: uniqid() }],
-        }
-      })
-    )
-  }
-
-  function handleAdd() {
-    setWorkExperience((prev) => [...prev, newExperience])
-  }
-
   function handleDone() {
     setOnEdit(false)
   }
 
+  useEffect(() => {
+    if (!onEdit) {
+      setWorkExperience((prev) =>
+        prev
+          // Remove unnecessary spaces
+          .map((work) => {
+            const usedPoints = work.points
+              .map((point) => ({ ...point, text: point.text.trim() }))
+              // Delete Empty Points
+              .filter((point) => point.text !== '')
+            return {
+              ...work,
+              company: work.company.trim(),
+              location: work.location.trim(),
+              position: work.position.trim(),
+              time: work.time.trim(),
+              points: usedPoints,
+            }
+          })
+          // Delete Empty Work Experiences
+          .filter((work) => {
+            if (
+              work.company === '' &&
+              work.location === '' &&
+              work.position === '' &&
+              work.time === ''
+            )
+              return false
+            return true
+          })
+      )
+    }
+  }, [onEdit])
+
   return (
-    <HoverContainer
-      margin='wide'
-      fn={setOnEdit}
-      onEdit={onEdit}
-      onDelete={onDelete}
-    >
+    <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
       <Grid>
         {onEdit ? (
           <WorkExperienceEdit
@@ -161,12 +164,13 @@ function WorkExperience({ onDelete }) {
             onTitleReset={handleTitleReset}
             onTitleChange={handleTitleChange}
             workExperience={workExperience}
+            onExperienceAdd={handleExperienceAdd}
+            onExperienceChange={handleExperienceChange}
             onExperienceDelete={handleExperienceDelete}
             onPointAdd={handlePointAdd}
+            onPointChange={handlePointChange}
             onPointDelete={handlePointDelete}
-            onAdd={handleAdd}
             onDone={handleDone}
-            onChange={handleChange}
           />
         ) : (
           <WorkExperienceView title={title} workExperience={workExperience} />
@@ -181,80 +185,22 @@ function WorkExperienceEdit({
   onTitleReset,
   onTitleChange,
   workExperience,
+  onExperienceAdd,
+  onExperienceChange,
   onExperienceDelete,
-  onChange,
-  onPointDelete,
   onPointAdd,
-  onAdd,
+  onPointChange,
+  onPointDelete,
   onDone,
 }) {
-  const companies = [
-    'Apple Inc.',
-    'Google LLC',
-    'Amazon.com',
-    'Facebook Inc.',
-    'Microsoft',
-    'Twitter Inc.',
-    'Pinterest',
-    'Snapchat Inc.',
-    'LinkedIn Corp.',
-    'Dropbox Inc.',
-  ]
-
-  const locations = [
-    'Zagreb, HR',
-    'Tokyo, JP',
-    'Remote',
-    'Berlin, DE',
-    'San Francisco, CA',
-  ]
-
-  const positions = [
-    'App Developer',
-    'UX Designer',
-    'QA Tester',
-    'Tech Writer',
-    'Data Analyst',
-    'Project Manager',
-    'Marketing Specialist',
-    'Content Creator',
-    'Business Analyst',
-    'Support Specialist',
-  ]
-
-  const time = [
-    'Jan 2020 - Present',
-    'Feb 2020 - Present',
-    'Apr 2021 - Jun 2021',
-    'Jul 2021 - Sep 2021',
-    'Oct 2021 - Dec 2021',
-    'Jan 2022 - Mar 2022',
-    'Apr 2022 - Jun 2022',
-    'Jul 2022 - Sep 2022',
-    'Oct 2022 - Dec 2022',
-  ]
-
-  const bullets = [
-    'Managed social media campaigns',
-    'Analyzed campaign performance data',
-    'Created visual content for social',
-    'Interacted with customers online',
-    'Developed social media strategies',
-    'Designed mobile app UI',
-    'Developed user-friendly interfaces',
-    'Collaborated with development team',
-    'Conducted user research studies',
-    'Created wireframes and prototypes',
-  ]
-
   return (
     <Grid>
       <InputBlock
-        type='between restore'
+        button='restore'
         color='primary.text'
         bgcolor='black'
         name='Section Title'
-        placeholder='e.g Work Experience'
+        placeholder='e.g. Work Experience'
         value={title}
         onClick={onTitleReset}
         onChange={onTitleChange}
@@ -264,71 +210,44 @@ function WorkExperienceEdit({
           <Grid key={work.id}>
             <Grid type='1fr 1fr'>
               <Box gridColumn='1/3'>
-                <Flex type='between'>
-                  <Typography sx={{ ml: 1 }}>{`${
-                    index + 1
-                  }. Experience`}</Typography>
-                  <DynamicButton
-                    mainColor='black'
-                    type='button delete'
-                    text='Remove'
-                    onClick={() => onExperienceDelete(work.id)}
-                  />
-                </Flex>
+                <IndexDeleteTitle
+                  title={`${index + 1}. Experience`}
+                  onDelete={() => onExperienceDelete(work.id)}
+                />
               </Box>
               <InputBlock
-                type='between'
                 color='primary.opposite'
                 bgcolor='primary.violet'
                 name='Company*'
-                placeholder={
-                  index < companies.length
-                    ? `e.g. ${companies[index]}`
-                    : `e.g. ${companies[index - 10]}`
-                }
+                placeholder={Placeholders.getCompany(index)}
                 value={work.company}
-                onChange={(e) => onChange(e, work.id, 'company')}
+                onChange={(e) => onExperienceChange(e, work.id, 'company')}
               />
               <InputBlock
-                type='between'
                 color='primary.opposite'
                 bgcolor='primary.violet'
                 name='Location'
-                placeholder={
-                  index < locations.length
-                    ? `e.g. ${locations[index]}`
-                    : `e.g. ${locations[index - 5]}`
-                }
+                placeholder={Placeholders.getLocation(index)}
                 value={work.location}
-                onChange={(e) => onChange(e, work.id, 'location')}
+                onChange={(e) => onExperienceChange(e, work.id, 'location')}
               />
             </Grid>
             <Grid type='1fr 1fr'>
               <InputBlock
-                type='start'
                 color='primary.opposite'
                 bgcolor='primary.violet'
                 name='Position*'
-                placeholder={
-                  index < positions.length
-                    ? `e.g. ${positions[index]}`
-                    : `e.g. ${positions[index - 10]}`
-                }
+                placeholder={Placeholders.getPosition(index)}
                 value={work.position}
-                onChange={(e) => onChange(e, work.id, 'position')}
+                onChange={(e) => onExperienceChange(e, work.id, 'position')}
               />
               <InputBlock
-                type='between no-button'
                 color='primary.opposite'
                 bgcolor='primary.violet'
                 name='Time*'
-                placeholder={
-                  index < time.length
-                    ? `e.g. ${time[index]}`
-                    : `e.g. ${time[index - 10]}`
-                }
+                placeholder={Placeholders.getTime(index)}
                 value={work.time}
-                onChange={(e) => onChange(e, work.id, 'time')}
+                onChange={(e) => onExperienceChange(e, work.id, 'time')}
               />
             </Grid>
             {work.points.map((point, index) => {
@@ -339,12 +258,8 @@ function WorkExperienceEdit({
                   color='primary.opposite'
                   bgcolor='primary.violet'
                   name={`${index + 1}. Point`}
-                  placeholder={
-                    index < bullets.length
-                      ? `e.g. ${bullets[index]}`
-                      : `e.g. ${bullets[index - 10]}`
-                  }
-                  onChange={(e) => onChange(e, work.id, 'text', index)}
+                  placeholder={Placeholders.getPoint(index)}
+                  onChange={(e) => onPointChange(e, work.id, point.id)}
                   onDelete={() => onPointDelete(work.id, point.id)}
                 />
               )
@@ -363,7 +278,7 @@ function WorkExperienceEdit({
       <PrimarySecondaryButtons
         primaryText='Done'
         secondaryText='Add Experience'
-        onAdd={onAdd}
+        onAdd={onExperienceAdd}
         onDone={onDone}
       />
     </Grid>
@@ -378,10 +293,10 @@ function WorkExperienceView({ title, workExperience }) {
         {workExperience.map((work) => {
           return (
             <Box key={work.id}>
-              {work.company.trim() !== '' &&
-                work.position.trim() !== '' &&
-                work.time.trim() !== '' && (
-                  <Box key={work.id}>
+              {work.company !== '' &&
+                work.position !== '' &&
+                work.time !== '' && (
+                  <Box>
                     <PrimaryDescription
                       left={work.company}
                       right={work.location}

@@ -1,13 +1,16 @@
-import { useState } from 'react'
-import { Box, Typography } from '@mui/material'
+import { useState, useEffect } from 'react'
+import { Typography } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Grid from '../Containers/Grid'
 import SectionTitleView from '../Titles/SectionTitleView'
 import InputBlock from '../Inputs/InputBlock'
 import InputAreaBlock from '../Inputs/InputAreaBlock'
+import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+import Placeholders from '../../Functions/placeholders'
 import uniqid from 'uniqid'
 
 function AboutMe({ onDelete }) {
+  const [onEdit, setOnEdit] = useState(false)
   const defaultTitle = 'About Me'
   const defaultAboutMe = [
     {
@@ -19,9 +22,12 @@ function AboutMe({ onDelete }) {
       id: uniqid(),
     },
   ]
-  const [onEdit, setOnEdit] = useState(false)
   const [title, setTitle] = useState(defaultTitle)
   const [aboutMe, setAboutMe] = useState(defaultAboutMe)
+  const newAboutMe = {
+    text: '',
+    id: uniqid(),
+  }
 
   function handleTitleReset() {
     setTitle(defaultTitle)
@@ -29,6 +35,10 @@ function AboutMe({ onDelete }) {
 
   function handleTitleChange(e) {
     setTitle(e.target.value)
+  }
+
+  function handleParagraphAdd() {
+    setAboutMe((prev) => [...prev, newAboutMe])
   }
 
   function handleParagraphChange(e, id) {
@@ -41,16 +51,42 @@ function AboutMe({ onDelete }) {
     )
   }
 
+  function handleParagraphDelete(id) {
+    if (aboutMe.length === 1) setAboutMe((prev) => [{ ...prev[0], text: '' }])
+    else setAboutMe((prev) => prev.filter((about) => about.id !== id))
+  }
+
+  function handleDone() {
+    setOnEdit(false)
+  }
+
+  useEffect(() => {
+    if (!onEdit) {
+      setAboutMe((prev) =>
+        prev
+          // Remove unnecessary spaces
+          .map((paragraph) => {
+            return { ...paragraph, text: paragraph.text }
+          })
+          // Remove unnecessary spaces
+          .filter((paragraph) => paragraph.text !== '')
+      )
+    }
+  }, [onEdit])
+
   return (
     <HoverContainer onEdit={onEdit} fn={setOnEdit} onDelete={onDelete}>
       <Grid>
         {onEdit ? (
           <AboutMeEdit
             title={title}
-            aboutMe={aboutMe}
-            onTitleReset={handleTitleReset}
             onTitleChange={handleTitleChange}
+            onTitleReset={handleTitleReset}
+            aboutMe={aboutMe}
+            onParagraphAdd={handleParagraphAdd}
             onParagraphChange={handleParagraphChange}
+            onParagraphDelete={handleParagraphDelete}
+            onDone={handleDone}
           />
         ) : (
           <AboutMeView title={title} aboutMe={aboutMe} />
@@ -62,13 +98,16 @@ function AboutMe({ onDelete }) {
 
 function AboutMeEdit({
   title,
-  aboutMe,
-  onTitleReset,
   onTitleChange,
+  onTitleReset,
+  aboutMe,
+  onParagraphAdd,
   onParagraphChange,
+  onParagraphDelete,
+  onDone,
 }) {
   return (
-    <Grid>
+    <Grid gap={1.5}>
       <InputBlock
         name='Section Title'
         button='restore'
@@ -78,18 +117,28 @@ function AboutMeEdit({
         onChange={onTitleChange}
         onClick={onTitleReset}
       />
-      {aboutMe.map((paragraph, index) => {
-        return (
-          <InputAreaBlock
-            key={index}
-            color='primary.opposite'
-            bgcolor='primary.violet'
-            name={`${index + 1}. Paragraph`}
-            value={paragraph.text}
-            onChange={(e) => onParagraphChange(e, paragraph.id)}
-          />
-        )
-      })}
+      <Grid>
+        {aboutMe.map((paragraph, index) => {
+          return (
+            <InputAreaBlock
+              key={index}
+              color='primary.opposite'
+              bgcolor='primary.violet'
+              name={`${index + 1}. Paragraph`}
+              placeholder={Placeholders.getAboutParagraph(index)}
+              value={paragraph.text}
+              onChange={(e) => onParagraphChange(e, paragraph.id)}
+              onDelete={() => onParagraphDelete(paragraph.id)}
+            />
+          )
+        })}
+      </Grid>
+      <PrimarySecondaryButtons
+        primaryText='Done'
+        secondaryText='Add Skill'
+        onAdd={onParagraphAdd}
+        onDone={onDone}
+      />
     </Grid>
   )
 }
@@ -99,9 +148,9 @@ function AboutMeView({ title, aboutMe }) {
     <Grid gap={0}>
       <SectionTitleView title={title} />
       <Grid>
-        {aboutMe.map((paragraph) => {
+        {aboutMe.map((paragraph, index) => {
           return (
-            <Typography pl={1.5} fontSize={13} textAlign='left'>
+            <Typography key={index} pl={1.5} fontSize={13} textAlign='left'>
               {paragraph.text}
             </Typography>
           )

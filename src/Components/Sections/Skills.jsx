@@ -3,15 +3,16 @@ import { Box } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Grid from '../Containers/Grid'
 import Flex from '../Containers/Flex'
-import uniqid from 'uniqid'
 import SectionTitleView from '../Titles/SectionTitleView'
 import InputBlock from '../Inputs/InputBlock'
-import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 import Points from '../Text/Points'
+import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+import Placeholders from '../../Functions/placeholders'
+import uniqid from 'uniqid'
 
 function Skills({ onDelete }) {
+  const [onEdit, setOnEdit] = useState(false)
   const defaultTitle = 'Skills'
-  // HOOKS
   const defaultSkills = useMemo(
     () => [
       { text: 'Ninja TeamWork', id: uniqid() },
@@ -22,36 +23,18 @@ function Skills({ onDelete }) {
   )
   const [title, setTitle] = useState(defaultTitle)
   const [skills, setSkills] = useState(defaultSkills)
-  const [onEdit, setOnEdit] = useState(false)
-
-  useEffect(() => {
-    if (!onEdit) {
-      setSkills((prev) => prev.filter((skill) => skill.text.trim() !== ''))
-    }
-  }, [skills.length, onEdit, defaultSkills])
-
-  // HANDLERS
-
-  function handleTitleReset() {
-    setTitle(defaultTitle)
-  }
+  const newSkill = { text: '', id: uniqid() }
 
   function handleTitleChange(e) {
     setTitle(e.target.value)
   }
 
-  function handleSkillDelete(id) {
-    if (skills.length === 1) setSkills((prev) => [{ ...prev[0], text: '' }])
-    else setSkills((prev) => prev.filter((skill) => skill.id !== id))
+  function handleTitleReset() {
+    setTitle(defaultTitle)
   }
 
   function handleSkillAdd() {
-    setSkills((prev) => [...prev, { text: '', id: uniqid() }])
-  }
-
-  function handleDone() {
-    setOnEdit(false)
-    document.activeElement.blur()
+    setSkills((prev) => [...prev, newSkill])
   }
 
   function handleSkillChange(e, id) {
@@ -62,23 +45,41 @@ function Skills({ onDelete }) {
     )
   }
 
+  function handleSkillDelete(id) {
+    if (skills.length === 1) setSkills((prev) => [{ ...prev[0], text: '' }])
+    else setSkills((prev) => prev.filter((skill) => skill.id !== id))
+  }
+
+  function handleDone() {
+    setOnEdit(false)
+  }
+
+  useEffect(() => {
+    if (!onEdit) {
+      setSkills((prev) =>
+        prev
+          // Remove unnecessary spaces
+          .map((skill) => {
+            return { ...skill, text: skill.text.trim() }
+          })
+          // Remove unnecessary spaces
+          .filter((skill) => skill.text !== '')
+      )
+    }
+  }, [onEdit])
+
   return (
-    <HoverContainer
-      fn={setOnEdit}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      margin='wide'
-    >
+    <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
       <Grid>
         {onEdit ? (
           <SkillsEdit
             title={title}
-            onTitleReset={handleTitleReset}
             onTitleChange={handleTitleChange}
+            onTitleReset={handleTitleReset}
             skills={skills}
-            onSkillDelete={handleSkillDelete}
-            onSkillChange={handleSkillChange}
             onSkillAdd={handleSkillAdd}
+            onSkillChange={handleSkillChange}
+            onSkillDelete={handleSkillDelete}
             onDone={handleDone}
           />
         ) : (
@@ -110,36 +111,12 @@ function SkillsEdit({
   onSkillAdd,
   onDone,
 }) {
-  const skillPlaceholders = [
-    'e.g. fruit slicing',
-    'e.g. stealth',
-    'e.g. shuriken throwing',
-    'e.g. sneaking',
-    'e.g. sword-fighting',
-    'e.g. poisoning',
-    'e.g. climbing',
-    'e.g. trap-setting',
-    'e.g. disguise',
-    'e.g. acrobatics',
-    'e.g. meditation',
-    'e.g. mind control',
-    'e.g. water walking',
-    'e.g. blowgun mastery',
-    'e.g. grappling',
-    'e.g. invisibility',
-    'e.g. explosives handling',
-    'e.g. rope use',
-    'e.g. diving',
-    'e.g. teleportation',
-    'e.g. fire manipulation',
-  ]
-
   return (
     <Grid>
       <InputBlock
         color='primary.opposite'
         bgcolor='primary.main'
-        type='between restore'
+        button='restore'
         name='Section Title'
         placeholder='e.g Skills'
         value={title}
@@ -152,13 +129,9 @@ function SkillsEdit({
             <InputBlock
               color='primary.opposite'
               bgcolor='primary.violet'
-              type='between x'
+              button='x'
               name={`${index + 1}. Skill`}
-              placeholder={
-                index < skillPlaceholders.length
-                  ? skillPlaceholders[index]
-                  : skillPlaceholders[index - 10]
-              }
+              placeholder={Placeholders.getSkill(index)}
               value={skill.text}
               onChange={(e) => onSkillChange(e, skill.id)}
               onClick={() => onSkillDelete(skill.id)}
@@ -169,7 +142,7 @@ function SkillsEdit({
       <PrimarySecondaryButtons
         primaryText='Done'
         secondaryText='Add Skill'
-        onSkillAdd={onSkillAdd}
+        onAdd={onSkillAdd}
         onDone={onDone}
       />
     </Grid>

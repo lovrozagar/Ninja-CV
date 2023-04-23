@@ -1,22 +1,21 @@
 import { useState, useEffect } from 'react'
-import { Typography, Link } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Flex from '../Containers/Flex'
 import Grid from '../Containers/Grid'
 import SectionTitleView from '../Titles/SectionTitleView'
 import EntryLinks from '../Text/EntryLinks'
-import PrimaryDescription from '../Text/PrimaryDescription'
-import SecondaryDescription from '../Text/SecondaryDescription'
 import Points from '../Text/Points'
 import IndexDeleteTitle from '../Titles/IndexDeleteTitle'
 import InputBlock from '../Inputs/InputBlock'
 import InputAreaBlock from '../Inputs/InputAreaBlock'
 import DynamicButton from '../Buttons/DynamicButton'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+import Placeholders from '../../Functions/placeholders'
 import uniqid from 'uniqid'
-import { Box } from '@mui/material'
 
 function PersonalProjects({ onDelete }) {
+  const [onEdit, setOnEdit] = useState(false)
   const defaultTitle = 'Personal Projects'
   const defaultPersonalProjects = [
     {
@@ -32,7 +31,11 @@ function PersonalProjects({ onDelete }) {
       ],
     },
   ]
-  const newPersonalProject = {
+  const [title, setTitle] = useState(defaultTitle)
+  const [personalProjects, setPersonalProjects] = useState(
+    defaultPersonalProjects
+  )
+  const newProject = {
     name: '',
     showcasePlaceholder: '',
     showcaseLink: '',
@@ -41,57 +44,25 @@ function PersonalProjects({ onDelete }) {
     id: uniqid(),
     points: [{ text: '', id: uniqid() }],
   }
-
-  const [title, setTitle] = useState(defaultTitle)
-  const [personalProjects, setPersonalProjects] = useState(
-    defaultPersonalProjects
-  )
-  const [onEdit, setOnEdit] = useState(false)
-
-  // Delete Empty Work Experiences or Points
-  useEffect(() => {
-    if (!onEdit) {
-      setPersonalProjects((prev) =>
-        prev
-          .map((project) => {
-            const usedPoints = project.points.filter(
-              (point) => point.text.trim() !== ''
-            )
-            return { ...project, points: usedPoints }
-          })
-          .filter((work) => {
-            if (work.name.trim() === '') return false
-            return true
-          })
-      )
-    }
-  }, [onEdit])
-
-  function handleTitleReset() {
-    setTitle(defaultTitle)
-  }
+  const newPoint = { text: '', id: uniqid() }
 
   function handleTitleChange(e) {
     setTitle(e.target.value)
   }
 
-  function handleChange(e, id, property, pointsIndex = null) {
+  function handleTitleReset() {
+    setTitle(defaultTitle)
+  }
+
+  function handleProjectAdd() {
+    setPersonalProjects((prev) => [...prev, newProject])
+  }
+
+  function handleProjectChange(e, id, property) {
     setPersonalProjects((prev) =>
-      prev.map((projects) => {
-        if (projects.id !== id) return projects
-
-        if (pointsIndex !== null) {
-          const points = [...projects.points]
-          const point = {
-            ...points[pointsIndex],
-            text: e.target.value,
-          }
-          points[pointsIndex] = point
-
-          return { ...projects, points }
-        }
-
-        return { ...projects, [property]: e.target.value }
+      prev.map((project) => {
+        if (project.id !== id) return project
+        return { ...project, [property]: e.target.value }
       })
     )
   }
@@ -99,11 +70,37 @@ function PersonalProjects({ onDelete }) {
   function handleProjectDelete(id) {
     setPersonalProjects((prev) => {
       if (prev.length === 1) {
-        return [newPersonalProject]
+        return [newProject]
       } else {
-        return prev.filter((projects) => projects.id !== id)
+        return prev.filter((project) => project.id !== id)
       }
     })
+  }
+
+  function handlePointAdd(id) {
+    setPersonalProjects((prev) =>
+      prev.map((project) => {
+        if (project.id !== id) return project
+
+        return {
+          ...project,
+          points: [...project.points, newPoint],
+        }
+      })
+    )
+  }
+
+  function handlePointChange(e, projectId, pointId) {
+    setPersonalProjects((prev) =>
+      prev.map((project) => {
+        if (project.id !== projectId) return project
+        const newPoints = project.points.map((point) => {
+          if (point.id !== pointId) return point
+          return { ...point, text: e.target.value }
+        })
+        return { ...project, points: newPoints }
+      })
+    )
   }
 
   function handlePointDelete(projectId, pointId) {
@@ -118,26 +115,45 @@ function PersonalProjects({ onDelete }) {
     )
   }
 
-  function handlePointAdd(id) {
-    setPersonalProjects((prev) =>
-      prev.map((experience) => {
-        if (experience.id !== id) return experience
-
-        return {
-          ...experience,
-          points: [...experience.points, { text: '', id: uniqid() }],
-        }
-      })
-    )
-  }
-
-  function handleProjectAdd() {
-    setPersonalProjects((prev) => [...prev, newPersonalProject])
-  }
-
   function handleDone() {
     setOnEdit(false)
   }
+
+  useEffect(() => {
+    if (!onEdit) {
+      setPersonalProjects((prev) =>
+        prev
+          // Remove unnecessary spaces
+          .map((project) => {
+            const usedPoints = project.points
+              .map((point) => ({ ...point, text: point.text.trim() }))
+              // Delete Empty Points
+              .filter((point) => point.text !== '')
+            return {
+              ...project,
+              name: project.name.trim(),
+              showcasePlaceholder: project.showcasePlaceholder.trim(),
+              showcaseLink: project.showcaseLink.trim(),
+              docsPlaceholder: project.docsPlaceholder.trim(),
+              docsLink: project.docsLink.trim(),
+              points: usedPoints,
+            }
+          })
+          // Delete Empty Personal Projects
+          .filter((project) => {
+            if (
+              project.name === '' &&
+              project.showcasePlaceholder === '' &&
+              project.showcaseLink === '' &&
+              project.docsPlaceholder === '' &&
+              project.docsLink === ''
+            )
+              return false
+            return true
+          })
+      )
+    }
+  }, [onEdit])
 
   return (
     <HoverContainer onEdit={onEdit} fn={setOnEdit} onDelete={onDelete}>
@@ -149,11 +165,12 @@ function PersonalProjects({ onDelete }) {
             onTitleChange={handleTitleChange}
             personalProjects={personalProjects}
             onProjectAdd={handleProjectAdd}
+            onProjectChange={handleProjectChange}
             onProjectDelete={handleProjectDelete}
             onPointAdd={handlePointAdd}
+            onPointChange={handlePointChange}
             onPointDelete={handlePointDelete}
             onDone={handleDone}
-            onChange={handleChange}
           />
         ) : (
           <PersonalProjectsView
@@ -172,40 +189,13 @@ function PersonalProjectsEdit({
   onTitleChange,
   personalProjects,
   onProjectAdd,
+  onProjectChange,
   onProjectDelete,
   onPointAdd,
+  onPointChange,
   onPointDelete,
   onDone,
-  onChange,
 }) {
-  const projects = [
-    'Pet Care App',
-    'Garden Tracker',
-    'Fitness Tracker',
-    'Online Recipe Box',
-    'Meal Planning App',
-    'DIY Home Automation',
-    'Language Learning Game',
-    'Online Learning Platform',
-    'Virtual Closet Organizer',
-    'Social Network for Book Lovers',
-  ]
-  const points = [
-    'Designed the user interface and developed the front-end for the website',
-    'Created a marathon training plan to track progress',
-    'Used a language learning app and practice french daily',
-    'Chose a game engine and developed the game mechanics',
-    'Develop a podcast content strategy and record episodes',
-    'Planed out the garden and researched plant care',
-    'Chose a color scheme and created a budget for room renovation',
-    'Created a project plan with specific milestones',
-    'Documented project progress and earnings',
-    'Wrote a script for a film',
-  ]
-
-  const showcases = ['Website', 'Live', 'Showcase', 'Solution', 'Result']
-  const docs = ['Documentation', 'Code', 'Steps', 'Plan', 'scheme']
-
   return (
     <Grid gap={1.5}>
       <InputBlock
@@ -230,24 +220,20 @@ function PersonalProjectsEdit({
               color='primary.opposite'
               bgcolor='primary.violet'
               name='Name*'
-              placeholder={`e.g. ${
-                index < projects.length ? projects[index] : projects[index - 10]
-              }`}
+              placeholder={Placeholders.getProject(index)}
               value={project.name}
-              onChange={(e) => onChange(e, project.id, 'name')}
+              onChange={(e) => onProjectChange(e, project.id, 'name')}
             />
             <Grid type='1fr 1fr'>
               <InputBlock
                 color='primary.opposite'
                 bgcolor='primary.violet'
                 name='Showcase Placeholder'
-                placeholder={`e.g. ${
-                  index < showcases.length
-                    ? showcases[index]
-                    : showcases[index - 5]
-                }`}
+                placeholder={Placeholders.getShowcase(index)}
                 value={project.showcasePlaceholder}
-                onChange={(e) => onChange(e, project.id, 'showcasePlaceholder')}
+                onChange={(e) =>
+                  onProjectChange(e, project.id, 'showcasePlaceholder')
+                }
               />
               <InputBlock
                 color='primary.opposite'
@@ -255,17 +241,17 @@ function PersonalProjectsEdit({
                 name='Showcase Link'
                 placeholder={'e.g. https://some-link.com'}
                 value={project.showcaseLink}
-                onChange={(e) => onChange(e, project.id, 'showcaseLink')}
+                onChange={(e) => onProjectChange(e, project.id, 'showcaseLink')}
               />
               <InputBlock
                 color='primary.opposite'
                 bgcolor='primary.violet'
                 name='Docs Placeholder'
-                placeholder={`e.g. ${
-                  index < docs.length ? docs[index] : docs[index - 5]
-                }`}
+                placeholder={Placeholders.getDocs(index)}
                 value={project.docsPlaceholder}
-                onChange={(e) => onChange(e, project.id, 'docsPlaceholder')}
+                onChange={(e) =>
+                  onProjectChange(e, project.id, 'docsPlaceholder')
+                }
               />
               <InputBlock
                 color='primary.opposite'
@@ -273,7 +259,7 @@ function PersonalProjectsEdit({
                 name='Docs Link'
                 placeholder={'e.g. https://some-other-link.com'}
                 value={project.docsLink}
-                onChange={(e) => onChange(e, project.id, 'docsLink')}
+                onChange={(e) => onProjectChange(e, project.id, 'docsLink')}
               />
             </Grid>
             {project.points.map((point, index) => {
@@ -284,10 +270,8 @@ function PersonalProjectsEdit({
                   color='primary.opposite'
                   bgcolor='primary.violet'
                   name={`${index + 1}. Point`}
-                  placeholder={`e.g. ${
-                    index < points.length ? points[index] : points[index - 10]
-                  }`}
-                  onChange={(e) => onChange(e, project.id, 'points', index)}
+                  placeholder={Placeholders.getProjectPoint(index)}
+                  onChange={(e) => onPointChange(e, project.id, point.id)}
                   onDelete={() => onPointDelete(project.id, point.id)}
                 />
               )
@@ -321,7 +305,7 @@ function PersonalProjectsView({ title, personalProjects }) {
         {personalProjects.map((project) => {
           return (
             <Box key={project.id}>
-              {project.name.trim() !== '' && (
+              {project.name !== '' && (
                 <Box key={project.id}>
                   <Flex type='between'>
                     <Typography fontSize={16} fontWeight='600'>
