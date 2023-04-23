@@ -1,54 +1,78 @@
-import { Box, TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
+import { Box } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
+import Flex from '../Containers/Flex'
+import Grid from '../Containers/Grid'
+import SkewTitle from '../Titles/SkewTitle'
+import InputBlock from '../Inputs/InputBlock'
+import DynamicButton from '../Buttons/DynamicButton'
+import Placeholders from '../../Functions/placeholders'
 
-function Position() {
-  const defaultPlaceholder = 'Position'
-  const [position, setPosition] = useState(defaultPlaceholder)
+function Position({ onDelete }) {
+  const [position, setPosition] = useState('')
   const [onEdit, setOnEdit] = useState(false)
-
-  useEffect(() => {
-    if (position.includes(' ') && !onEdit) setPosition(position.trim())
-  }, [position, onEdit])
-
-  useEffect(() => {
-    if (!position && !onEdit) setPosition(defaultPlaceholder)
-  }, [position, onEdit])
-
-  useEffect(() => {
-    if (position === defaultPlaceholder && onEdit) setPosition('')
-  }, [position, onEdit])
+  const [placeholder, setPlaceholder] = useState(
+    Placeholders.getPositionRandom()
+  )
 
   function handleOnChange(e) {
     setPosition(e.target.value)
   }
 
+  function handleDone() {
+    setOnEdit(false)
+  }
+
+  useEffect(() => {
+    // Get random placeholder when position empty
+    if (!onEdit) setPlaceholder(Placeholders.getPositionRandom())
+    // Remove unnecessary spaces
+    if (!onEdit) setPosition((prev) => prev.trim())
+  }, [onEdit])
+
   return (
-    <HoverContainer fn={setOnEdit} onEdit={onEdit}>
-      <Box
-        height='1.5rem'
-        width='100%'
-        sx={{
-          display: 'grid',
-        }}
-      >
+    <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
+      <Grid>
         {onEdit ? (
-          <TextField
-            value={position || ''}
-            placeholder='Position'
+          <PositionEdit
+            position={position}
+            placeholder={placeholder}
             onChange={handleOnChange}
-            InputProps={{
-              style: {
-                fontSize: '0.85rem',
-                height: '1.5rem',
-              },
-            }}
-          ></TextField>
+            onDone={handleDone}
+          />
         ) : (
-          <Box height='100%'>{position}</Box>
+          <Box>{position || 'Position'}</Box>
         )}
-      </Box>
+      </Grid>
     </HoverContainer>
+  )
+}
+
+function PositionEdit({ position, placeholder, onChange, onDone }) {
+  return (
+    <Grid gap={1.5}>
+      <SkewTitle
+        title='Position Section'
+        color='primary.opposite'
+        bgcolor='primary.main'
+      />
+      <InputBlock
+        name='Position'
+        value={position}
+        color='primary.opposite'
+        bgcolor='primary.violet'
+        placeholder={placeholder}
+        onChange={onChange}
+      />
+      <Flex type='end'>
+        <DynamicButton
+          text='Done'
+          type='button done contained medium'
+          mainColor='black'
+          onClick={onDone}
+        />
+      </Flex>
+    </Grid>
   )
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Box } from '@mui/material'
+import { Box, Link } from '@mui/material'
 import {
   Email,
   LinkedIn,
@@ -8,7 +8,7 @@ import {
   Facebook,
   Instagram,
   GitHub,
-  Link,
+  Link as BasicLink,
 } from '@mui/icons-material'
 import HoverContainer from '../Containers/HoverContainer'
 import Grid from '../Containers/Grid'
@@ -18,87 +18,59 @@ import SkewTitle from '../Titles/SkewTitle'
 import InputBlock from '../Inputs/InputBlock'
 import InputLogoBlock from '../Inputs/InputLogoBlock'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+import Placeholders from '../../Functions/placeholders'
 
-function Links() {
+function Links({ onDelete }) {
   const defaultValue = useMemo(
     () => [
       {
+        placeholder: 'Ninjamail',
+        hyperlink: 'lovro.zagar5@gmail.com',
         logo: 'Email',
-        link: 'lovro.zagar5@gmail.com',
-        name: 'Ninjamail',
       },
       {
+        placeholder: 'Address',
+        hyperlink: '10000 Zagreb, Croatia',
+        logo: 'Address',
+      },
+      {
+        placeholder: 'GitHub',
+        hyperlink: 'https://github.com/lovrozagar',
         logo: 'GitHub',
-        link: 'https://github.com/lovrozagar',
-        name: 'GitHub',
-      },
-      {
-        logo: 'LinkedIn',
-        link: 'https://www.linkedin.com/in/lovrozagar/',
-        name: 'LinkedIn',
       },
     ],
     []
   )
   const [links, setLinks] = useState(defaultValue)
   const [onEdit, setOnEdit] = useState(false)
-  const [editCheck, setEditCheck] = useState(false)
-
-  useEffect(() => {
-    if (links.length === 0 && !onEdit) {
-      setLinks(defaultValue)
-    }
-    if (links.some((link) => link.name.trim() === '') && !onEdit) {
-      const formattedLinks = links.map((link) => {
-        if (link.name === '') link.name = '[empty link]'
-        return link
-      })
-      setLinks(formattedLinks)
-    }
-    if (
-      links.some((link) => link.name === '[empty link]') &&
-      onEdit &&
-      !editCheck
-    ) {
-      const formattedLinks = links.map((link) => {
-        if (link.name === '[empty link]') link.name = ''
-        return link
-      })
-      setLinks(formattedLinks)
-      setEditCheck(true)
-    }
-    if (!onEdit) {
-      setEditCheck(false)
-    }
-  }, [links, onEdit, editCheck, defaultValue])
 
   function getLinkLogo(logoName) {
     let logo
 
     switch (logoName) {
       case 'Email':
-        logo = <Email />
+        logo = <Email fontSize='small' />
         break
       case 'Phone':
-        logo = <Phone />
+        logo = <Phone fontSize='small' />
         break
       case 'Address':
-        logo = <Home />
+        logo = <Home fontSize='small' />
         break
       case 'Facebook':
-        logo = <Facebook />
+        logo = <Facebook fontSize='small' />
         break
       case 'Instagram':
-        logo = <Instagram />
+        logo = <Instagram fontSize='small' />
         break
       case 'LinkedIn':
-        logo = <LinkedIn />
+        logo = <LinkedIn fontSize='small' />
         break
       case 'GitHub':
-        logo = <GitHub />
+        logo = <GitHub fontSize='small' />
         break
       default:
-        logo = <Link />
+        logo = <BasicLink fontSize='small' />
         break
     }
 
@@ -106,25 +78,39 @@ function Links() {
   }
 
   function handleLinkAdd() {
-    setLinks((prevLinks) => [...prevLinks, { logo: '', link: '', name: '' }])
+    setLinks((prevLinks) => [
+      ...prevLinks,
+      { placeholder: '', logo: '', hyperlink: '' },
+    ])
   }
 
-  function handleDone() {
-    setOnEdit(false)
+  function guessLink(input) {
+    // GUESS IF EMAIL
+    const regex = /^\S+@\S+\.\S+$/ // guess if link is mail
+    const isEmail = regex.test(input)
+    if (isEmail) return `mailto:${input}`
+    // GUESS IF ADDRESS
+    const isAddress = input.includes(' ') || input.includes(',')
+    if (isAddress) {
+      const searchQuery = input
+        .split()
+        .map((entry, index) => {
+          if (index) return `+${entry}`
+          return entry
+        })
+        .join()
+      return `https://www.google.com/search?q=${searchQuery}`
+    }
+    // GUESS IF URL
+    return input
   }
 
   function handlePlaceholderChange(e, index) {
     setLinks((prevLinks) =>
       prevLinks.map((link, linkIndex) => {
-        return index === linkIndex ? { ...link, name: e.target.value } : link
-      })
-    )
-  }
-
-  function handleLinkChange(e, index) {
-    setLinks((prevLinks) =>
-      prevLinks.map((link, linkIndex) => {
-        return index === linkIndex ? { ...link, link: e.target.value } : link
+        return index === linkIndex
+          ? { ...link, placeholder: e.target.value }
+          : link
       })
     )
   }
@@ -137,33 +123,68 @@ function Links() {
     )
   }
 
-  function handleLinkDelete(index) {
-    setLinks((prevLinks) => prevLinks.filter((link) => link !== links[index]))
+  function handleHyperlinkChange(e, index) {
+    setLinks((prevLinks) =>
+      prevLinks.map((link, linkIndex) => {
+        return index === linkIndex
+          ? { ...link, hyperlink: e.target.value }
+          : link
+      })
+    )
   }
 
+  function handleLinkDelete(index) {
+    setLinks((prev) =>
+      prev
+        .map((link) => {
+          if (prev.length === 1)
+            return { placeholder: '', logo: 'link', hyperlink: '' }
+          return link
+        })
+        .filter((link) => link !== links[index] || prev.length === 1)
+    )
+  }
+
+  function handleDone() {
+    setOnEdit(false)
+  }
+
+  useEffect(() => {
+    // Remove unnecessary spaces
+    if (!onEdit) {
+      setLinks((prev) =>
+        prev.map((link) => {
+          return {
+            ...link,
+            placeholder: link.placeholder.trim(),
+            hyperlink: link.hyperlink.trim(),
+          }
+        })
+      )
+    }
+  }, [onEdit])
+
   return (
-    <HoverContainer fn={setOnEdit} onEdit={onEdit}>
-      <Box
-        sx={{
-          display: onEdit ? 'grid' : 'flex',
-          width: onEdit ? '100%' : 'auto',
-          gap: '0.5rem',
-        }}
-      >
+    <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
+      <Grid>
         {onEdit ? (
           <LinksEdit
             links={links}
             onLinkAdd={handleLinkAdd}
-            onLinkChange={handleLinkChange}
-            onLinkDelete={handleLinkDelete}
             onPlaceholderChange={handlePlaceholderChange}
             onLogoSelect={handleLogoSelect}
+            onHyperlinkChange={handleHyperlinkChange}
+            onLinkDelete={handleLinkDelete}
             onDone={handleDone}
           />
         ) : (
-          <LinksView links={links} getLinkLogo={getLinkLogo} />
+          <LinksView
+            links={links}
+            getLinkLogo={getLinkLogo}
+            guessLink={guessLink}
+          />
         )}
-      </Box>
+      </Grid>
     </HoverContainer>
   )
 }
@@ -171,16 +192,16 @@ function Links() {
 function LinksEdit({
   links,
   onLinkAdd,
-  onLinkChange,
-  onLinkDelete,
   onPlaceholderChange,
   onLogoSelect,
+  onHyperlinkChange,
+  onLinkDelete,
   onDone,
 }) {
   return (
     <Grid gap={1.5}>
       <SkewTitle
-        title='Links: URL | Email | Custom'
+        title='Links Section'
         color='primary.opposite'
         bgcolor='primary.main'
       />
@@ -195,14 +216,12 @@ function LinksEdit({
                 />
               </Box>
               <InputBlock
-                htmlFor={`placeholder-${index}`}
                 name='Placeholder'
                 color='primary.opposite'
                 bgcolor='primary.violet'
-                placeholder='Link name'
-                value={link.name}
+                placeholder={Placeholders.getLinkName(index)}
+                value={link.placeholder}
                 onChange={(e) => onPlaceholderChange(e, index)}
-                size='small'
               />
               <InputLogoBlock
                 name='Logo'
@@ -213,13 +232,12 @@ function LinksEdit({
               />
               <Grid sx={{ gridColumn: '1/3' }}>
                 <InputBlock
-                  htmlFor={`hyperlink-${index}`}
                   name='Hyperlink'
                   color='primary.opposite'
                   bgcolor='primary.violet'
-                  placeholder='Full URL'
-                  value={link.link}
-                  onChange={(e) => onLinkChange(e, index)}
+                  placeholder={Placeholders.getUrl(index)}
+                  value={link.hyperlink}
+                  onChange={(e) => onHyperlinkChange(e, index)}
                 />
               </Grid>
             </Grid>
@@ -236,15 +254,25 @@ function LinksEdit({
   )
 }
 
-function LinksView({ links, getLinkLogo }) {
+function LinksView({ links, getLinkLogo, guessLink }) {
   return (
-    <Flex type='center'>
+    <Flex type='center' gap={1.5}>
       {links.map((link, index) => {
         return (
-          <Flex key={index}>
-            <Flex>{getLinkLogo(link.logo)}</Flex>
-            <Flex>{link.name}</Flex>
-          </Flex>
+          <Link
+            key={index}
+            href={guessLink(link.hyperlink)}
+            hyperlink='_blank'
+            rel='noopener'
+            underline='hover'
+            color='inherit'
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Flex gap={0.5}>
+              <Flex>{getLinkLogo(link.logo)}</Flex>
+              <Flex>{link.placeholder || '[empty link]'}</Flex>
+            </Flex>
+          </Link>
         )
       })}
     </Flex>
