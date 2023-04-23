@@ -177,6 +177,120 @@ const Placeholders = (() => {
     return exampleFormat(bullets, index)
   }
 
+  function getSchool(index) {
+    const schools = [
+      'MIT',
+      'Caltech',
+      'Duke University',
+      'Yale University',
+      'Harvard University',
+      'Stanford University',
+      'Columbia University',
+      'Princeton University',
+      'University of Chicago',
+      'Johns Hopkins University',
+    ]
+
+    return exampleFormat(schools, index)
+  }
+
+  function getProfession(index) {
+    const professions = [
+      'Computer Science',
+      'Nursing',
+      'Psychology',
+      'Business Administration',
+      'Engineering',
+      'Education',
+      'Graphic Design',
+      'Journalism',
+      'Criminal Justice',
+      'Marketing',
+    ]
+
+    return exampleFormat(professions, index)
+  }
+
+  function getEducationPoint(index) {
+    const points = [
+      'Math: algebra, calculus, statistics',
+      'Science: biology, chemistry, physics',
+      'Literature: reading, writing, critical thinking',
+      'History: world history, local history, politics',
+      'Philosophy: ethics, logic, critical thinking',
+      'Social sciences: sociology, psychology, anthropology',
+      'Languages: grammar, vocabulary, syntax',
+      'Fine arts: music, painting, theater',
+      'Computer science: programming, algorithms, data structures',
+      'Business: accounting, marketing, management',
+    ]
+
+    return exampleFormat(points, index)
+  }
+
+  function getProject(index) {
+    const projects = [
+      'Pet Care App',
+      'Garden Tracker',
+      'Fitness Tracker',
+      'Online Recipe Box',
+      'Meal Planning App',
+      'DIY Home Automation',
+      'Language Learning Game',
+      'Online Learning Platform',
+      'Virtual Closet Organizer',
+      'Social Network for Book Lovers',
+    ]
+
+    return exampleFormat(projects, index)
+  }
+
+  function getProjectPoint(index) {
+    const points = [
+      'Designed the user interface and developed the front-end for the website',
+      'Created a marathon training plan to track progress',
+      'Used a language learning app and practice french daily',
+      'Chose a game engine and developed the game mechanics',
+      'Develop a podcast content strategy and record episodes',
+      'Planed out the garden and researched plant care',
+      'Chose a color scheme and created a budget for room renovation',
+      'Created a project plan with specific milestones',
+      'Documented project progress and earnings',
+      'Wrote a script for a film',
+    ]
+
+    return exampleFormat(points, index)
+  }
+
+  function getShowcase(index) {
+    const showcases = ['Website', 'Live', 'Showcase', 'Solution', 'Result']
+
+    return exampleFormat(showcases, index)
+  }
+
+  function getDocs(index) {
+    const docs = ['Documentation', 'Code', 'Steps', 'Plan', 'scheme']
+
+    return exampleFormat(docs, index)
+  }
+
+  function getAboutParagraph(index) {
+    const abouts = [
+      'A creative and detail-oriented graphic designer with experience in creating visual concepts that communicate ideas that inspire, inform, and captivate consumers.',
+      'A skilled software engineer with expertise in designing and implementing robust and scalable applications using the latest technologies and programming languages.',
+      'An experienced project manager with a proven track record of delivering high-quality projects on time and within budget.',
+      'Confident and effective communicator with experience in providing exceptional customer service and resolving complex issues in a timely and efficient manner.',
+      'Data-driven marketer with expertise in developing and executing successful digital marketing campaigns that increase brand awareness, engagement, and sales.',
+      'Results-driven sales professional with a proven ability to generate leads, close deals, and exceed sales targets in highly competitive markets.',
+      'Skilled copywriter with a talent for creating compelling and persuasive content that engages audiences and drives conversions.',
+      'Innovative UX designer with a passion for creating intuitive and user-friendly interfaces that enhance the user experience and drive engagement.',
+      'Analytical and strategic thinker with experience in developing and implementing effective business strategies that drive growth and profitability.',
+      'Diligent and detail-oriented accountant with expertise in financial reporting, budgeting, and analysis.',
+    ]
+
+    return exampleFormat(abouts, index)
+  }
+
   return {
     getFullNameRandom,
     getPositionRandom,
@@ -188,6 +302,14 @@ const Placeholders = (() => {
     getPosition,
     getTime,
     getPoint,
+    getSchool,
+    getProfession,
+    getEducationPoint,
+    getProject,
+    getProjectPoint,
+    getShowcase,
+    getDocs,
+    getAboutParagraph,
   }
 })()
 
