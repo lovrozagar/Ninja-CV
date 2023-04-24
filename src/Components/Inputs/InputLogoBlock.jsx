@@ -15,7 +15,23 @@ import SkewTitle from '../Titles/SkewTitle'
 
 function InputLogoBlock({ name, color, bgcolor, link, onLogoSelect }) {
   const selectRef = useRef(null)
-  const style = { justifyContent: 'center' }
+
+  const selectStyling = {
+    maxHeight: '40px',
+    lineHeight: 0,
+    borderRadius: 1,
+    bgcolor: 'primary.lightGrey',
+    '&:not(:focus, :focus-within)': {
+      fieldset: {
+        border: 'none',
+        outline: 'none',
+      },
+    },
+  }
+
+  const menuItemStyling = {
+    justifyContent: 'center',
+  }
 
   return (
     <Grid gap={0.5}>
@@ -34,33 +50,30 @@ function InputLogoBlock({ name, color, bgcolor, link, onLogoSelect }) {
           value={link?.logo || 'link'}
           onChange={(e) => onLogoSelect(e)}
           size='small'
-          sx={{
-            maxHeight: '40px',
-            lineHeight: 0,
-          }}
+          sx={selectStyling}
         >
-          <MenuItem value='link' sx={style}>
+          <MenuItem value='link' sx={menuItemStyling}>
             <Link />
           </MenuItem>
-          <MenuItem value='Phone' sx={style}>
+          <MenuItem value='Phone' sx={menuItemStyling}>
             <Phone />
           </MenuItem>
-          <MenuItem value='Address' sx={style}>
+          <MenuItem value='Address' sx={menuItemStyling}>
             <Home />
           </MenuItem>
-          <MenuItem value='Email' sx={style}>
+          <MenuItem value='Email' sx={menuItemStyling}>
             <Email />
           </MenuItem>
-          <MenuItem value='Facebook' sx={style}>
+          <MenuItem value='Facebook' sx={menuItemStyling}>
             <Facebook />
           </MenuItem>
-          <MenuItem value='Instagram' sx={style}>
+          <MenuItem value='Instagram' sx={menuItemStyling}>
             <Instagram />
           </MenuItem>
-          <MenuItem value='LinkedIn' sx={style}>
+          <MenuItem value='LinkedIn' sx={menuItemStyling}>
             <LinkedIn />
           </MenuItem>
-          <MenuItem value='GitHub' sx={style}>
+          <MenuItem value='GitHub' sx={menuItemStyling}>
             <GitHub />
           </MenuItem>
         </Select>

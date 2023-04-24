@@ -16,6 +16,17 @@ function InputAreaBlock({
 }) {
   const connectFocus = useRef(uniqid())
 
+  const styling = {
+    bgcolor: 'primary.lightGrey',
+    borderRadius: 1,
+    '&:not(:focus, :focus-within)': {
+      fieldset: {
+        border: 'none',
+        outline: 'none',
+      },
+    },
+  }
+
   return (
     <Grid gap={0.5}>
       <SkewTitle
@@ -37,6 +48,7 @@ function InputAreaBlock({
             <DynamicButton mainColor='black' type='icon x' onClick={onDelete} />
           ),
         }}
+        sx={styling}
       />
     </Grid>
   )

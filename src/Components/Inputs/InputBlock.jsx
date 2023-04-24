@@ -25,6 +25,17 @@ function InputBlock({
     />
   ) : null
 
+  const styling = {
+    bgcolor: 'primary.lightGrey',
+    borderRadius: 1,
+    '&:not(:focus, :focus-within)': {
+      fieldset: {
+        border: 'none',
+        outline: 'none',
+      },
+    },
+  }
+
   return (
     <Grid gap={0.5}>
       <SkewTitle
@@ -42,6 +53,7 @@ function InputBlock({
         InputProps={{
           endAdornment: endButton,
         }}
+        sx={styling}
       />
     </Grid>
   )
