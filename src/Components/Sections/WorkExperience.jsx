@@ -128,6 +128,8 @@ function WorkExperience({ onDelete, id, index }) {
 
   useEffect(() => {
     if (!onEdit) {
+      // Remove unnecessary spaces
+      setTitle((prev) => prev.trim())
       setWorkExperience((prev) =>
         prev
           // Remove unnecessary spaces
@@ -305,7 +307,7 @@ function WorkExperienceEdit({
 function WorkExperienceView({ title, workExperience }) {
   return (
     <Box>
-      <SectionTitleView title={title} />
+      <SectionTitleView title={title || 'Work Experience'} />
       <Grid>
         {workExperience.map((work) => {
           return (

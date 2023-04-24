@@ -126,6 +126,8 @@ function PersonalProjects({ onDelete, id, index }) {
 
   useEffect(() => {
     if (!onEdit) {
+      // Remove unnecessary spaces
+      setTitle((prev) => prev.trim())
       setPersonalProjects((prev) =>
         prev
           // Remove unnecessary spaces
@@ -314,7 +316,7 @@ function PersonalProjectsEdit({
 function PersonalProjectsView({ title, personalProjects }) {
   return (
     <Box>
-      <SectionTitleView title={title} />
+      <SectionTitleView title={title || 'Personal Projects'} />
       <Grid>
         {personalProjects.map((project) => {
           return (

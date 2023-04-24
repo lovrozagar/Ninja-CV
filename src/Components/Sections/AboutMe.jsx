@@ -67,6 +67,8 @@ function AboutMe({ onDelete, id, index }) {
 
   useEffect(() => {
     if (!onEdit) {
+      // Remove unnecessary spaces
+      setTitle((prev) => prev.trim())
       setAboutMe((prev) =>
         prev
           // Remove unnecessary spaces
@@ -160,7 +162,7 @@ function AboutMeEdit({
 function AboutMeView({ title, aboutMe }) {
   return (
     <Grid gap={0}>
-      <SectionTitleView title={title} />
+      <SectionTitleView title={title || 'About Me'} />
       <Grid>
         {aboutMe.map((paragraph, index) => {
           return (

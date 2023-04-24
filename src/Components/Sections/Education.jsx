@@ -128,6 +128,8 @@ function Education({ onDelete, id, index }) {
 
   useEffect(() => {
     if (!onEdit) {
+      // Remove unnecessary spaces
+      setTitle((prev) => prev.trim())
       setEducation((prev) =>
         prev
           // Remove unnecessary spaces
@@ -302,7 +304,7 @@ function EducationEdit({
 function EducationView({ title, education }) {
   return (
     <Box>
-      <SectionTitleView title={title} />
+      <SectionTitleView title={title || 'Education'} />
       <Grid>
         {education.map((ed) => {
           return (

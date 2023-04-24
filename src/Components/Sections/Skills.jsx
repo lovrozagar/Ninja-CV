@@ -61,13 +61,15 @@ function Skills({ onDelete, id, index }) {
 
   useEffect(() => {
     if (!onEdit) {
+      // Remove unnecessary spaces
+      setTitle((prev) => prev.trim())
       setSkills((prev) =>
         prev
           // Remove unnecessary spaces
           .map((skill) => {
             return { ...skill, text: skill.text.trim() }
           })
-          // Remove unnecessary spaces
+          // Remove empty skills
           .filter((skill) => skill.text !== '')
       )
     }
@@ -101,17 +103,6 @@ function Skills({ onDelete, id, index }) {
         )
       }}
     </Draggable>
-  )
-}
-
-function SkillsView({ title, skills }) {
-  return (
-    <Box>
-      <SectionTitleView title={title} />
-      <Flex type='center'>
-        <Points array={skills} display='inline' />
-      </Flex>
-    </Box>
   )
 }
 
@@ -160,6 +151,17 @@ function SkillsEdit({
         onDone={onDone}
       />
     </Grid>
+  )
+}
+
+function SkillsView({ title, skills }) {
+  return (
+    <Box>
+      <SectionTitleView title={title || 'Skills'} />
+      <Flex type='center'>
+        <Points array={skills} display='inline' />
+      </Flex>
+    </Box>
   )
 }
 
