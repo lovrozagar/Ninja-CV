@@ -170,11 +170,20 @@ function Links({ onDelete, id, index }) {
 
   return (
     <Draggable draggableId={id} index={index} direction='vertical'>
-      {(provided) => {
+      {(provided, snapshot) => {
         return (
           <Drag onEdit={onEdit} provided={provided}>
-            <DragButton onEdit={onEdit} {...provided.dragHandleProps} />
-            <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
+            <DragButton
+              onEdit={onEdit}
+              isDragging={snapshot.isDragging}
+              {...provided.dragHandleProps}
+            />
+            <HoverContainer
+              fn={setOnEdit}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              isDragging={snapshot.isDragging}
+            >
               <Grid>
                 {onEdit ? (
                   <LinksEdit

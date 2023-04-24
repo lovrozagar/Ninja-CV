@@ -164,11 +164,20 @@ function PersonalProjects({ onDelete, id, index }) {
 
   return (
     <Draggable draggableId={id} index={index} direction='vertical'>
-      {(provided) => {
+      {(provided, snapshot) => {
         return (
           <Drag onEdit={onEdit} provided={provided}>
-            <DragButton onEdit={onEdit} {...provided.dragHandleProps} />
-            <HoverContainer onEdit={onEdit} fn={setOnEdit} onDelete={onDelete}>
+            <DragButton
+              onEdit={onEdit}
+              isDragging={snapshot.isDragging}
+              {...provided.dragHandleProps}
+            />
+            <HoverContainer
+              onEdit={onEdit}
+              fn={setOnEdit}
+              onDelete={onDelete}
+              isDragging={snapshot.isDragging}
+            >
               <Grid>
                 {onEdit ? (
                   <PersonalProjectsEdit

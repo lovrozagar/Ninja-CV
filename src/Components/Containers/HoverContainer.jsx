@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useLongPress } from 'use-long-press'
 import ClickOutsideGuard from './ClickOutsideGuard'
 
-function HoverContainer({ children, fn, onEdit, margin, onDelete }) {
+function HoverContainer({ children, fn, onEdit, onDelete, isDragging }) {
   const [heldDown, setHeldDown] = useState(false)
   const [delayed, setDelayed] = useState(false)
   const elementRef = useRef(null)
@@ -35,9 +35,11 @@ function HoverContainer({ children, fn, onEdit, margin, onDelete }) {
     }
 
     document.addEventListener('mouseup', handleClickOutside)
+    document.addEventListener('touchend', handleClickOutside)
 
     return () => {
       document.removeEventListener('mouseup', handleClickOutside)
+      document.removeEventListener('touchend', handleClickOutside)
     }
   }, [heldDown, onDelete])
 
@@ -80,6 +82,58 @@ function HoverContainer({ children, fn, onEdit, margin, onDelete }) {
     }
   )
 
+  const svgColors = {
+    white: '%23ffffff',
+    darkGrey: '%23333333',
+    mediumGrey: '%23bbbbbb',
+    holdRed: '%23b91c1c',
+    violet: '%237d8af8',
+  }
+
+  const styling = {
+    width: '100%',
+    mb: 1,
+    p: onEdit ? 3 : '0.5rem',
+    textTransform: 'none',
+    fontWeight: 'normal',
+    color: heldDown ? 'primary.opposite' : 'primary.main',
+    bgcolor: heldDown
+      ? 'primary.holdRed'
+      : isDragging
+      ? 'primary.transparentViolet'
+      : 'primary.opposite',
+    backgroundImage: `url(
+            "data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='${
+              heldDown
+                ? svgColors.holdRed
+                : isDragging
+                ? svgColors.violet
+                : svgColors.mediumGrey
+            }' stroke-width='3' stroke-dasharray='8' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e"
+          )`,
+    webkitTouchCallout: 'none !important',
+    webkitUserSelect: 'none !important',
+    '&:hover': {
+      bgcolor: heldDown
+        ? 'primary.holdRed'
+        : onEdit
+        ? 'primary.opposite'
+        : null,
+    },
+    '&:hover, &:focus-within': {
+      backgroundImage: `url(
+            "data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='${
+              heldDown ? svgColors.holdRed : svgColors.mediumGrey
+            }' stroke-width='3' stroke-dasharray='8' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e"
+          )`,
+    },
+    '&:hover h5 + div': {
+      boxShadow: heldDown
+        ? '0 1px primary.transparentMain'
+        : '0 1px primary.transparentGrey',
+    },
+  }
+
   return (
     <ClickOutsideGuard
       onClickOutside={handleOutsideClick}
@@ -92,37 +146,7 @@ function HoverContainer({ children, fn, onEdit, margin, onDelete }) {
         onClick={handleInsideClick}
         onContextMenu={handleContextMenu}
         disableRipple={delayed || heldDown ? true : false}
-        sx={{
-          width: '100%',
-          mt: '0.5rem',
-          p: onEdit ? 3 : '0.5rem 1rem',
-          textTransform: 'none',
-          fontWeight: 'normal',
-          color: heldDown ? 'light.main' : 'dark.main',
-          bgcolor: heldDown ? 'delete.hold' : 'secondary.main',
-          backgroundImage: `url(
-            "data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23${
-              heldDown ? 'ffffff' : 'aaaaaa'
-            }' stroke-width='3' stroke-dasharray='8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e"
-          )`,
-          webkitTouchCallout: 'none !important',
-          webkitUserSelect: 'none !important',
-          '&:hover': {
-            bgcolor: heldDown ? 'delete.hold' : 'secondary.main',
-          },
-          '&:hover, &:focus-within': {
-            backgroundImage: `url(
-            "data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23${
-              heldDown ? 'b91c1c' : '000000'
-            }' stroke-width='3' stroke-dasharray='8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e"
-          )`,
-          },
-          '&:hover h5 + div': {
-            boxShadow: heldDown
-              ? '0 1px rgba(255, 255, 255, 0.25)'
-              : '0 1px rgba(0, 0, 0, 0.25)',
-          },
-        }}
+        sx={styling}
       >
         {children}
       </Button>
