@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+// COMPONENTS
 import { Box } from '@mui/material'
-import uniqid from 'uniqid'
+import HoverContainer from '../Containers/HoverContainer'
 import Flex from '../Containers/Flex'
 import Grid from '../Containers/Grid'
-import HoverContainer from '../Containers/HoverContainer'
+import Drag from '../Containers/Drag'
+import DragButton from '../Buttons/DragButton'
 import SectionTitleView from '../Titles/SectionTitleView'
 import PrimaryDescription from '../Text/PrimaryDescription'
 import SecondaryDescription from '../Text/SecondaryDescription'
@@ -13,9 +14,13 @@ import Points from '../Text/Points'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 import DynamicButton from '../Buttons/DynamicButton'
 import IndexDeleteTitle from '../Titles/IndexDeleteTitle'
+// FUNCTIONALITY
+import { useState, useEffect, useMemo } from 'react'
+import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
+import uniqid from 'uniqid'
 
-function WorkExperience({ onDelete }) {
+function WorkExperience({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
   const defaultTitle = 'Work Experience'
   const defaultWorkExperience = useMemo(
@@ -156,27 +161,39 @@ function WorkExperience({ onDelete }) {
   }, [onEdit])
 
   return (
-    <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
-      <Grid>
-        {onEdit ? (
-          <WorkExperienceEdit
-            title={title}
-            onTitleReset={handleTitleReset}
-            onTitleChange={handleTitleChange}
-            workExperience={workExperience}
-            onExperienceAdd={handleExperienceAdd}
-            onExperienceChange={handleExperienceChange}
-            onExperienceDelete={handleExperienceDelete}
-            onPointAdd={handlePointAdd}
-            onPointChange={handlePointChange}
-            onPointDelete={handlePointDelete}
-            onDone={handleDone}
-          />
-        ) : (
-          <WorkExperienceView title={title} workExperience={workExperience} />
-        )}
-      </Grid>
-    </HoverContainer>
+    <Draggable draggableId={id} index={index} direction='vertical'>
+      {(provided) => {
+        return (
+          <Drag onEdit={onEdit} provided={provided}>
+            <DragButton onEdit={onEdit} {...provided.dragHandleProps} />
+            <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
+              <Grid>
+                {onEdit ? (
+                  <WorkExperienceEdit
+                    title={title}
+                    onTitleReset={handleTitleReset}
+                    onTitleChange={handleTitleChange}
+                    workExperience={workExperience}
+                    onExperienceAdd={handleExperienceAdd}
+                    onExperienceChange={handleExperienceChange}
+                    onExperienceDelete={handleExperienceDelete}
+                    onPointAdd={handlePointAdd}
+                    onPointChange={handlePointChange}
+                    onPointDelete={handlePointDelete}
+                    onDone={handleDone}
+                  />
+                ) : (
+                  <WorkExperienceView
+                    title={title}
+                    workExperience={workExperience}
+                  />
+                )}
+              </Grid>
+            </HoverContainer>
+          </Drag>
+        )
+      }}
+    </Draggable>
   )
 }
 

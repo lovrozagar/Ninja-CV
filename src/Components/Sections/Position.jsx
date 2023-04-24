@@ -1,14 +1,19 @@
-import { useEffect, useState } from 'react'
+// COMPONENTS
 import { Box } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Flex from '../Containers/Flex'
 import Grid from '../Containers/Grid'
+import Drag from '../Containers/Drag'
+import DragButton from '../Buttons/DragButton'
 import SkewTitle from '../Titles/SkewTitle'
 import InputBlock from '../Inputs/InputBlock'
 import DynamicButton from '../Buttons/DynamicButton'
+// FUNCTIONALITY
+import { useEffect, useState } from 'react'
+import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
 
-function Position({ onDelete }) {
+function Position({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
   const [position, setPosition] = useState('')
   const [placeholder, setPlaceholder] = useState(
@@ -31,20 +36,29 @@ function Position({ onDelete }) {
   }, [onEdit])
 
   return (
-    <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
-      <Grid>
-        {onEdit ? (
-          <PositionEdit
-            position={position}
-            placeholder={placeholder}
-            onChange={handleOnChange}
-            onDone={handleDone}
-          />
-        ) : (
-          <Box>{position || 'Position'}</Box>
-        )}
-      </Grid>
-    </HoverContainer>
+    <Draggable draggableId={id} index={index} direction='vertical'>
+      {(provided) => {
+        return (
+          <Drag onEdit={onEdit} provided={provided}>
+            <DragButton onEdit={onEdit} {...provided.dragHandleProps} />
+            <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
+              <Grid>
+                {onEdit ? (
+                  <PositionEdit
+                    position={position}
+                    placeholder={placeholder}
+                    onChange={handleOnChange}
+                    onDone={handleDone}
+                  />
+                ) : (
+                  <Box>{position || 'Position'}</Box>
+                )}
+              </Grid>
+            </HoverContainer>
+          </Drag>
+        )
+      }}
+    </Draggable>
   )
 }
 

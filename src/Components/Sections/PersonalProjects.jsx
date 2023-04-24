@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+// COMPONENTS
 import { Box, Typography } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Flex from '../Containers/Flex'
 import Grid from '../Containers/Grid'
+import Drag from '../Containers/Drag'
+import DragButton from '../Buttons/DragButton'
 import SectionTitleView from '../Titles/SectionTitleView'
 import EntryLinks from '../Text/EntryLinks'
 import Points from '../Text/Points'
@@ -11,10 +13,13 @@ import InputBlock from '../Inputs/InputBlock'
 import InputAreaBlock from '../Inputs/InputAreaBlock'
 import DynamicButton from '../Buttons/DynamicButton'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+// FUNCTIONALITY
+import { useState, useEffect } from 'react'
+import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
 import uniqid from 'uniqid'
 
-function PersonalProjects({ onDelete }) {
+function PersonalProjects({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
   const defaultTitle = 'Personal Projects'
   const defaultPersonalProjects = [
@@ -156,30 +161,39 @@ function PersonalProjects({ onDelete }) {
   }, [onEdit])
 
   return (
-    <HoverContainer onEdit={onEdit} fn={setOnEdit} onDelete={onDelete}>
-      <Grid>
-        {onEdit ? (
-          <PersonalProjectsEdit
-            title={title}
-            onTitleReset={handleTitleReset}
-            onTitleChange={handleTitleChange}
-            personalProjects={personalProjects}
-            onProjectAdd={handleProjectAdd}
-            onProjectChange={handleProjectChange}
-            onProjectDelete={handleProjectDelete}
-            onPointAdd={handlePointAdd}
-            onPointChange={handlePointChange}
-            onPointDelete={handlePointDelete}
-            onDone={handleDone}
-          />
-        ) : (
-          <PersonalProjectsView
-            title={title}
-            personalProjects={personalProjects}
-          />
-        )}
-      </Grid>
-    </HoverContainer>
+    <Draggable draggableId={id} index={index} direction='vertical'>
+      {(provided) => {
+        return (
+          <Drag onEdit={onEdit} provided={provided}>
+            <DragButton onEdit={onEdit} {...provided.dragHandleProps} />
+            <HoverContainer onEdit={onEdit} fn={setOnEdit} onDelete={onDelete}>
+              <Grid>
+                {onEdit ? (
+                  <PersonalProjectsEdit
+                    title={title}
+                    onTitleReset={handleTitleReset}
+                    onTitleChange={handleTitleChange}
+                    personalProjects={personalProjects}
+                    onProjectAdd={handleProjectAdd}
+                    onProjectChange={handleProjectChange}
+                    onProjectDelete={handleProjectDelete}
+                    onPointAdd={handlePointAdd}
+                    onPointChange={handlePointChange}
+                    onPointDelete={handlePointDelete}
+                    onDone={handleDone}
+                  />
+                ) : (
+                  <PersonalProjectsView
+                    title={title}
+                    personalProjects={personalProjects}
+                  />
+                )}
+              </Grid>
+            </HoverContainer>
+          </Drag>
+        )
+      }}
+    </Draggable>
   )
 }
 

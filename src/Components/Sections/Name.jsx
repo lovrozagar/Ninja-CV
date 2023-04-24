@@ -1,14 +1,19 @@
-import { useState, useEffect, useMemo } from 'react'
+//COMPONENTS
 import { Typography } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Flex from '../Containers/Flex'
 import Grid from '../Containers/Grid'
+import Drag from '../Containers/Drag'
+import DragButton from '../Buttons/DragButton'
 import SkewTitle from '../Titles/SkewTitle'
 import InputBlock from '../Inputs/InputBlock'
 import DynamicButton from '../Buttons/DynamicButton'
+// FUNCTIONALITY
+import { useState, useEffect, useMemo } from 'react'
+import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
 
-function Name({ onDelete }) {
+function Name({ onDelete, id, index }) {
   const defaultPlaceholder = useMemo(() => {
     return {
       forename: '',
@@ -43,20 +48,29 @@ function Name({ onDelete }) {
   }, [onEdit])
 
   return (
-    <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
-      <Flex type='center'>
-        {onEdit ? (
-          <NameEdit
-            name={name}
-            placeholder={placeholder}
-            onChange={handleChange}
-            onDone={handleDone}
-          />
-        ) : (
-          <NameView name={name} />
-        )}
-      </Flex>
-    </HoverContainer>
+    <Draggable draggableId={id} index={index} direction='vertical'>
+      {(provided) => {
+        return (
+          <Drag onEdit={onEdit} provided={provided}>
+            <DragButton onEdit={onEdit} {...provided.dragHandleProps} />
+            <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
+              <Grid type='center'>
+                {onEdit ? (
+                  <NameEdit
+                    name={name}
+                    placeholder={placeholder}
+                    onChange={handleChange}
+                    onDone={handleDone}
+                  />
+                ) : (
+                  <NameView name={name} />
+                )}
+              </Grid>
+            </HoverContainer>
+          </Drag>
+        )
+      }}
+    </Draggable>
   )
 }
 

@@ -1,15 +1,20 @@
-import { useState, useEffect } from 'react'
+// COMPONENTS
 import { Typography } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Grid from '../Containers/Grid'
+import Drag from '../Containers/Drag'
+import DragButton from '../Buttons/DragButton'
 import SectionTitleView from '../Titles/SectionTitleView'
 import InputBlock from '../Inputs/InputBlock'
 import InputAreaBlock from '../Inputs/InputAreaBlock'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+// FUNCTIONALITY
+import { useState, useEffect } from 'react'
+import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
 import uniqid from 'uniqid'
 
-function AboutMe({ onDelete }) {
+function AboutMe({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
   const defaultTitle = 'About Me'
   const defaultAboutMe = [
@@ -75,24 +80,33 @@ function AboutMe({ onDelete }) {
   }, [onEdit])
 
   return (
-    <HoverContainer onEdit={onEdit} fn={setOnEdit} onDelete={onDelete}>
-      <Grid>
-        {onEdit ? (
-          <AboutMeEdit
-            title={title}
-            onTitleChange={handleTitleChange}
-            onTitleReset={handleTitleReset}
-            aboutMe={aboutMe}
-            onParagraphAdd={handleParagraphAdd}
-            onParagraphChange={handleParagraphChange}
-            onParagraphDelete={handleParagraphDelete}
-            onDone={handleDone}
-          />
-        ) : (
-          <AboutMeView title={title} aboutMe={aboutMe} />
-        )}
-      </Grid>
-    </HoverContainer>
+    <Draggable draggableId={id} index={index} direction='vertical'>
+      {(provided) => {
+        return (
+          <Drag onEdit={onEdit} provided={provided}>
+            <DragButton onEdit={onEdit} {...provided.dragHandleProps} />
+            <HoverContainer onEdit={onEdit} fn={setOnEdit} onDelete={onDelete}>
+              <Grid>
+                {onEdit ? (
+                  <AboutMeEdit
+                    title={title}
+                    onTitleChange={handleTitleChange}
+                    onTitleReset={handleTitleReset}
+                    aboutMe={aboutMe}
+                    onParagraphAdd={handleParagraphAdd}
+                    onParagraphChange={handleParagraphChange}
+                    onParagraphDelete={handleParagraphDelete}
+                    onDone={handleDone}
+                  />
+                ) : (
+                  <AboutMeView title={title} aboutMe={aboutMe} />
+                )}
+              </Grid>
+            </HoverContainer>
+          </Drag>
+        )
+      }}
+    </Draggable>
   )
 }
 

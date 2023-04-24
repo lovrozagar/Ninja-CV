@@ -1,16 +1,21 @@
-import { useEffect, useState, useMemo } from 'react'
+//COMPONENTS
 import { Box } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
-import Grid from '../Containers/Grid'
 import Flex from '../Containers/Flex'
+import Grid from '../Containers/Grid'
+import Drag from '../Containers/Drag'
+import DragButton from '../Buttons/DragButton'
 import SectionTitleView from '../Titles/SectionTitleView'
 import InputBlock from '../Inputs/InputBlock'
 import Points from '../Text/Points'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+// FUNCTIONALITY
+import { useState, useEffect, useMemo } from 'react'
+import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
 import uniqid from 'uniqid'
 
-function Skills({ onDelete }) {
+function Skills({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
   const defaultTitle = 'Skills'
   const defaultSkills = useMemo(
@@ -69,24 +74,33 @@ function Skills({ onDelete }) {
   }, [onEdit])
 
   return (
-    <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
-      <Grid>
-        {onEdit ? (
-          <SkillsEdit
-            title={title}
-            onTitleChange={handleTitleChange}
-            onTitleReset={handleTitleReset}
-            skills={skills}
-            onSkillAdd={handleSkillAdd}
-            onSkillChange={handleSkillChange}
-            onSkillDelete={handleSkillDelete}
-            onDone={handleDone}
-          />
-        ) : (
-          <SkillsView title={title} skills={skills} />
-        )}
-      </Grid>
-    </HoverContainer>
+    <Draggable draggableId={id} index={index} direction='vertical'>
+      {(provided) => {
+        return (
+          <Drag onEdit={onEdit} provided={provided}>
+            <DragButton onEdit={onEdit} {...provided.dragHandleProps} />
+            <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
+              <Grid>
+                {onEdit ? (
+                  <SkillsEdit
+                    title={title}
+                    onTitleChange={handleTitleChange}
+                    onTitleReset={handleTitleReset}
+                    skills={skills}
+                    onSkillAdd={handleSkillAdd}
+                    onSkillChange={handleSkillChange}
+                    onSkillDelete={handleSkillDelete}
+                    onDone={handleDone}
+                  />
+                ) : (
+                  <SkillsView title={title} skills={skills} />
+                )}
+              </Grid>
+            </HoverContainer>
+          </Drag>
+        )
+      }}
+    </Draggable>
   )
 }
 

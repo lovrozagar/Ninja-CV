@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from 'react'
 import { Box, Link } from '@mui/material'
 import {
   Email,
@@ -11,16 +10,21 @@ import {
   Link as BasicLink,
 } from '@mui/icons-material'
 import HoverContainer from '../Containers/HoverContainer'
-import Grid from '../Containers/Grid'
 import Flex from '../Containers/Flex'
+import Grid from '../Containers/Grid'
+import Drag from '../Containers/Drag'
+import DragButton from '../Buttons/DragButton'
 import IndexDeleteTitle from '../Titles/IndexDeleteTitle'
 import SkewTitle from '../Titles/SkewTitle'
 import InputBlock from '../Inputs/InputBlock'
 import InputLogoBlock from '../Inputs/InputLogoBlock'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+// FUNCTIONALITY
+import { useEffect, useMemo, useState } from 'react'
+import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
 
-function Links({ onDelete }) {
+function Links({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
   const defaultValue = useMemo(
     () => [
@@ -165,27 +169,36 @@ function Links({ onDelete }) {
   }, [onEdit])
 
   return (
-    <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
-      <Grid>
-        {onEdit ? (
-          <LinksEdit
-            links={links}
-            onLinkAdd={handleLinkAdd}
-            onPlaceholderChange={handlePlaceholderChange}
-            onLogoSelect={handleLogoSelect}
-            onHyperlinkChange={handleHyperlinkChange}
-            onLinkDelete={handleLinkDelete}
-            onDone={handleDone}
-          />
-        ) : (
-          <LinksView
-            links={links}
-            getLinkLogo={getLinkLogo}
-            guessLink={guessLink}
-          />
-        )}
-      </Grid>
-    </HoverContainer>
+    <Draggable draggableId={id} index={index} direction='vertical'>
+      {(provided) => {
+        return (
+          <Drag onEdit={onEdit} provided={provided}>
+            <DragButton onEdit={onEdit} {...provided.dragHandleProps} />
+            <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
+              <Grid>
+                {onEdit ? (
+                  <LinksEdit
+                    links={links}
+                    onLinkAdd={handleLinkAdd}
+                    onPlaceholderChange={handlePlaceholderChange}
+                    onLogoSelect={handleLogoSelect}
+                    onHyperlinkChange={handleHyperlinkChange}
+                    onLinkDelete={handleLinkDelete}
+                    onDone={handleDone}
+                  />
+                ) : (
+                  <LinksView
+                    links={links}
+                    getLinkLogo={getLinkLogo}
+                    guessLink={guessLink}
+                  />
+                )}
+              </Grid>
+            </HoverContainer>
+          </Drag>
+        )
+      }}
+    </Draggable>
   )
 }
 
@@ -262,7 +275,7 @@ function LinksView({ links, getLinkLogo, guessLink }) {
           <Link
             key={index}
             href={guessLink(link.hyperlink)}
-            hyperlink='_blank'
+            target='_blank'
             rel='noopener'
             underline='hover'
             color='inherit'

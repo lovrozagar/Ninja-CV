@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+// COMPONENTS
 import { Box } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Flex from '../Containers/Flex'
 import Grid from '../Containers/Grid'
+import Drag from '../Containers/Drag'
+import DragButton from '../Buttons/DragButton'
 import SectionTitleView from '../Titles/SectionTitleView'
 import PrimaryDescription from '../Text/PrimaryDescription'
 import SecondaryDescription from '../Text/SecondaryDescription'
@@ -12,10 +14,13 @@ import InputAreaBlock from '../Inputs/InputAreaBlock'
 import Points from '../Text/Points'
 import DynamicButton from '../Buttons/DynamicButton'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+// FUNCTIONALITY
+import { useState, useEffect, useMemo } from 'react'
+import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
 import uniqid from 'uniqid'
 
-function Education({ onDelete }) {
+function Education({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
   const defaultTitle = 'Education'
   const defaultEducation = useMemo(
@@ -156,27 +161,36 @@ function Education({ onDelete }) {
   }, [onEdit])
 
   return (
-    <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
-      <Grid>
-        {onEdit ? (
-          <EducationEdit
-            title={title}
-            onTitleChange={handleTitleChange}
-            onTitleReset={handleTitleReset}
-            education={education}
-            onEducationAdd={handleEducationAdd}
-            onEducationChange={handleEducationChange}
-            onEducationDelete={handleEducationDelete}
-            onPointAdd={handlePointAdd}
-            onPointChange={handlePointChange}
-            onPointDelete={handlePointDelete}
-            onDone={handleDone}
-          />
-        ) : (
-          <EducationView title={title} education={education} />
-        )}
-      </Grid>
-    </HoverContainer>
+    <Draggable draggableId={id} index={index} direction='vertical'>
+      {(provided) => {
+        return (
+          <Drag onEdit={onEdit} provided={provided}>
+            <DragButton onEdit={onEdit} {...provided.dragHandleProps} />
+            <HoverContainer fn={setOnEdit} onEdit={onEdit} onDelete={onDelete}>
+              <Grid>
+                {onEdit ? (
+                  <EducationEdit
+                    title={title}
+                    onTitleChange={handleTitleChange}
+                    onTitleReset={handleTitleReset}
+                    education={education}
+                    onEducationAdd={handleEducationAdd}
+                    onEducationChange={handleEducationChange}
+                    onEducationDelete={handleEducationDelete}
+                    onPointAdd={handlePointAdd}
+                    onPointChange={handlePointChange}
+                    onPointDelete={handlePointDelete}
+                    onDone={handleDone}
+                  />
+                ) : (
+                  <EducationView title={title} education={education} />
+                )}
+              </Grid>
+            </HoverContainer>
+          </Drag>
+        )
+      }}
+    </Draggable>
   )
 }
 
