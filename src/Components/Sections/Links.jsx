@@ -19,6 +19,7 @@ import SkewTitle from '../Titles/SkewTitle'
 import InputBlock from '../Inputs/InputBlock'
 import InputLogoBlock from '../Inputs/InputLogoBlock'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
+import LinkDialog from '../Dialogs/LinkDialog'
 // FUNCTIONALITY
 import { useEffect, useMemo, useState } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
@@ -26,6 +27,7 @@ import Placeholders from '../../Functions/placeholders'
 
 function Links({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
+  const [open, setOpen] = useState(false)
   const defaultValue = useMemo(
     () => [
       {
@@ -169,45 +171,51 @@ function Links({ onDelete, id, index }) {
   }, [onEdit])
 
   return (
-    <Draggable draggableId={id} index={index} direction='vertical'>
-      {(provided, snapshot) => {
-        return (
-          <Drag onEdit={onEdit} provided={provided}>
-            <DragButton
-              onEdit={onEdit}
-              isDragging={snapshot.isDragging}
-              {...provided.dragHandleProps}
-            />
-            <HoverContainer
-              fn={setOnEdit}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              isDragging={snapshot.isDragging}
-            >
-              <Grid>
-                {onEdit ? (
-                  <LinksEdit
-                    links={links}
-                    onLinkAdd={handleLinkAdd}
-                    onPlaceholderChange={handlePlaceholderChange}
-                    onLogoSelect={handleLogoSelect}
-                    onHyperlinkChange={handleHyperlinkChange}
-                    onLinkDelete={handleLinkDelete}
-                    onDone={handleDone}
-                  />
-                ) : (
-                  <LinksView
-                    links={links}
-                    getLinkLogo={getLinkLogo}
-                    guessLink={guessLink}
-                  />
-                )}
-              </Grid>
-            </HoverContainer>
-          </Drag>
-        )
-      }}
-    </Draggable>
+    <Box>
+      <Draggable draggableId={id} index={index} direction='vertical'>
+        {(provided, snapshot) => {
+          return (
+            <Drag onEdit={onEdit} provided={provided}>
+              <DragButton
+                onEdit={onEdit}
+                isDragging={snapshot.isDragging}
+                {...provided.dragHandleProps}
+              />
+              <HoverContainer
+                fn={setOnEdit}
+                onEdit={onEdit}
+                linkStop={open}
+                onDelete={onDelete}
+                isDragging={snapshot.isDragging}
+              >
+                <Grid>
+                  {onEdit ? (
+                    <LinksEdit
+                      links={links}
+                      onLinkAdd={handleLinkAdd}
+                      onPlaceholderChange={handlePlaceholderChange}
+                      onLogoSelect={handleLogoSelect}
+                      onHyperlinkChange={handleHyperlinkChange}
+                      onLinkDelete={handleLinkDelete}
+                      onDone={handleDone}
+                    />
+                  ) : (
+                    <LinksView
+                      links={links}
+                      getLinkLogo={getLinkLogo}
+                      guessLink={guessLink}
+                      open={open}
+                      setOpen={setOpen}
+                      setOnEdit={setOnEdit}
+                    />
+                  )}
+                </Grid>
+              </HoverContainer>
+            </Drag>
+          )
+        }}
+      </Draggable>
+    </Box>
   )
 }
 
@@ -276,27 +284,60 @@ function LinksEdit({
   )
 }
 
-function LinksView({ links, getLinkLogo, guessLink }) {
+function LinksView({
+  links,
+  open,
+  getLinkLogo,
+  guessLink,
+  setOpen,
+  setOnEdit,
+}) {
+  const [hyperlink, setHyperlink] = useState(null)
+
+  function handleOpen() {
+    setOpen(true)
+  }
+
+  function handleClose() {
+    setOpen(false)
+  }
+
+  function handleEdit() {
+    setOnEdit(true)
+    setOpen(false)
+  }
+
+  function handleLinkClick(e, hyperlink) {
+    e.stopPropagation()
+    setHyperlink(hyperlink)
+    handleOpen()
+  }
+
   return (
     <Flex type='center' gap={1.5}>
       {links.map((link, index) => {
         return (
-          <Link
+          <Flex
             key={index}
-            href={guessLink(link.hyperlink)}
-            target='_blank'
-            rel='noopener'
-            underline='hover'
-            color='inherit'
-            onClick={(e) => e.stopPropagation()}
+            gap={0.5}
+            onClick={(e) => handleLinkClick(e, guessLink(link.hyperlink))}
           >
-            <Flex gap={0.5}>
-              <Flex>{getLinkLogo(link.logo)}</Flex>
-              <Flex>{link.placeholder || '[empty link]'}</Flex>
+            <Flex pointerEvents='hover'>{getLinkLogo(link.logo)}</Flex>
+            <Flex pointerEvents='hover'>
+              <Link color='inherit' underline='hover' pointerEvents='hover'>
+                {link.placeholder || '[empty link]'}
+              </Link>
             </Flex>
-          </Link>
+          </Flex>
         )
       })}
+      <LinkDialog
+        open={open}
+        onOpen={handleOpen}
+        onClose={handleClose}
+        onEdit={handleEdit}
+        hyperlink={hyperlink}
+      />
     </Flex>
   )
 }
