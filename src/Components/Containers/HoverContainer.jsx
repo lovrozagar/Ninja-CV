@@ -1,25 +1,23 @@
-import { Button } from '@mui/material'
+import { Button, Snackbar, Alert } from '@mui/material'
 import { useState, useRef, useEffect } from 'react'
 import { useLongPress } from 'use-long-press'
 import ClickOutsideGuard from './ClickOutsideGuard'
 
-function HoverContainer({ children, fn, onEdit, onDelete, isDragging }) {
+function HoverContainer({
+  title,
+  children,
+  onEdit,
+  onEditStart,
+  onEditEnd,
+  onSnackbarChange,
+  linkStop,
+  onDelete,
+  isDragging,
+  open,
+  close,
+}) {
   const [heldDown, setHeldDown] = useState(false)
-  const [delayed, setDelayed] = useState(false)
   const elementRef = useRef(null)
-  let timeout = null
-
-  useEffect(() => {
-    if (onEdit) {
-      timeout = setTimeout(() => {
-        setDelayed(true)
-      }, 250)
-    }
-    if (!onEdit) {
-      clearTimeout(timeout)
-      setDelayed(false)
-    }
-  }, [onEdit, fn])
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -45,7 +43,7 @@ function HoverContainer({ children, fn, onEdit, onDelete, isDragging }) {
 
   function handleOutsideClick() {
     if (onEdit) {
-      fn(false)
+      onEditEnd()
     }
   }
 
@@ -56,7 +54,8 @@ function HoverContainer({ children, fn, onEdit, onDelete, isDragging }) {
   }
 
   function handleInsideClick() {
-    if (!onEdit) fn(true)
+    if (linkStop) return
+    if (!onEdit) onEditStart()
   }
 
   function handleContextMenu(e) {
@@ -92,7 +91,6 @@ function HoverContainer({ children, fn, onEdit, onDelete, isDragging }) {
 
   const styling = {
     width: '100%',
-    mb: 1,
     p: onEdit ? 3 : '0.5rem',
     textTransform: 'none',
     fontWeight: 'normal',
@@ -136,8 +134,10 @@ function HoverContainer({ children, fn, onEdit, onDelete, isDragging }) {
 
   return (
     <ClickOutsideGuard
+      onEdit={onEdit}
       onClickOutside={handleOutsideClick}
       onOutsideHold={handleOutsideHold}
+      onSnackbarChange={onSnackbarChange}
     >
       <Button
         {...bind()}
@@ -145,10 +145,29 @@ function HoverContainer({ children, fn, onEdit, onDelete, isDragging }) {
         component='div'
         onClick={handleInsideClick}
         onContextMenu={handleContextMenu}
-        disableRipple={delayed || heldDown ? true : false}
+        disableRipple={open || onEdit || heldDown || linkStop ? true : false}
         sx={styling}
       >
         {children}
+        <Snackbar
+          open={open}
+          autoHideDuration={2000}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          onClose={close}
+          onClick={(e) => {
+            e.stopPropagation()
+            close()
+            console.log(e.target)
+          }}
+        >
+          <Alert
+            variant='filled'
+            color={'violet'}
+            sx={{ fontWeight: '600', color: 'primary.violet' }}
+          >
+            {`${title || ''} saved`}
+          </Alert>
+        </Snackbar>
       </Button>
     </ClickOutsideGuard>
   )
