@@ -1,7 +1,14 @@
-import { Link, Typography } from '@mui/material'
+import { Box, Link, Typography } from '@mui/material'
 import Flex from '../Containers/Flex'
+import LinkDialog from '../Dialogs/LinkDialog'
 
 function EntryLinks({
+  open,
+  onOpen,
+  onClose,
+  onEdit,
+  handleLinkClick,
+  hyperlink,
   showcaseLink,
   showcasePlaceholder,
   docsLink,
@@ -9,33 +16,52 @@ function EntryLinks({
 }) {
   return (
     <Flex>
-      <Link
-        href={showcaseLink}
-        target='_blank'
-        rel='noopener'
-        underline='hover'
-        color='inherit'
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Typography fontSize={14} fontWeight='300' fontStyle='italic'>
-          {showcasePlaceholder}
-        </Typography>
-      </Link>
+      <Box onClick={(e) => handleLinkClick(e, showcaseLink)}>
+        <Link
+          href={showcaseLink}
+          color='inherit'
+          underline='hover'
+          pointerEvents='hover'
+          onClick={(e) => e.preventDefault()}
+        >
+          <Typography
+            fontSize={14}
+            fontWeight='300'
+            fontStyle='italic'
+            pointerEvents='hover'
+          >
+            {showcasePlaceholder}
+          </Typography>
+        </Link>
+      </Box>
       {showcasePlaceholder.trim() !== '' && docsPlaceholder.trim() !== '' && (
         <Typography fontWeight='200'>|</Typography>
       )}
-      <Link
-        href={docsLink}
-        target='_blank'
-        rel='noopener'
-        underline='hover'
-        color='inherit'
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Typography fontSize={14} fontWeight='300' fontStyle='italic'>
-          {docsPlaceholder}
-        </Typography>
-      </Link>
+      <Box onClick={(e) => handleLinkClick(e, docsLink)}>
+        <Link
+          href={docsLink}
+          color='inherit'
+          underline='hover'
+          pointerEvents='hover'
+          onClick={(e) => e.preventDefault()}
+        >
+          <Typography
+            fontSize={14}
+            fontWeight='300'
+            fontStyle='italic'
+            pointerEvents='hover'
+          >
+            {docsPlaceholder}
+          </Typography>
+        </Link>
+      </Box>
+      <LinkDialog
+        open={open}
+        onOpen={onOpen}
+        onClose={onClose}
+        onEdit={onEdit}
+        hyperlink={hyperlink}
+      />
     </Flex>
   )
 }

@@ -21,6 +21,7 @@ import uniqid from 'uniqid'
 
 function PersonalProjects({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
+  const [linkDialog, setLinkDialog] = useState(false)
   const defaultTitle = 'Personal Projects'
   const defaultPersonalProjects = [
     {
@@ -175,6 +176,7 @@ function PersonalProjects({ onDelete, id, index }) {
             <HoverContainer
               onEdit={onEdit}
               fn={setOnEdit}
+              linkStop={linkDialog}
               onDelete={onDelete}
               isDragging={snapshot.isDragging}
             >
@@ -197,6 +199,9 @@ function PersonalProjects({ onDelete, id, index }) {
                   <PersonalProjectsView
                     title={title}
                     personalProjects={personalProjects}
+                    open={linkDialog}
+                    setOpen={setLinkDialog}
+                    setOnEdit={setOnEdit}
                   />
                 )}
               </Grid>
@@ -229,7 +234,6 @@ function PersonalProjectsEdit({
         bgcolor='black'
         name='Section Title'
         placeholder='e.g. Personal Projects'
-        s
         value={title}
         onClick={onTitleReset}
         onChange={onTitleChange}
@@ -322,7 +326,34 @@ function PersonalProjectsEdit({
   )
 }
 
-function PersonalProjectsView({ title, personalProjects }) {
+function PersonalProjectsView({
+  title,
+  personalProjects,
+  open,
+  setOpen,
+  setOnEdit,
+}) {
+  const [hyperlink, setHyperlink] = useState(null)
+
+  function handleOpen() {
+    setOpen(true)
+  }
+
+  function handleClose() {
+    setOpen(false)
+  }
+
+  function handleEdit() {
+    setOnEdit(true)
+    setOpen(false)
+  }
+
+  function handleLinkClick(e, hyperlink) {
+    e.stopPropagation()
+    setHyperlink(hyperlink)
+    handleOpen()
+  }
+
   return (
     <Box>
       <SectionTitleView title={title || 'Personal Projects'} />
@@ -337,6 +368,12 @@ function PersonalProjectsView({ title, personalProjects }) {
                       {project.name}
                     </Typography>
                     <EntryLinks
+                      open={open}
+                      onOpen={handleOpen}
+                      onClose={handleClose}
+                      onEdit={handleEdit}
+                      hyperlink={hyperlink}
+                      handleLinkClick={handleLinkClick}
                       showcaseLink={project.showcaseLink}
                       showcasePlaceholder={project.showcasePlaceholder}
                       docsLink={project.docsLink}
