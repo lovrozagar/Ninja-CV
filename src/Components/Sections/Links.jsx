@@ -123,6 +123,10 @@ function Links({ onDelete, id, index }) {
     const mailRegex = /^\S+@\S+\.\S+$/ // guess if link is mail
     const isEmail = mailRegex.test(input)
     if (isEmail) return `mailto:${input}`
+    // GUESS IF PHONE NUMBER
+    const numberRegex = /^\+?\d+$/
+    const isNumber = numberRegex.test(input)
+    if (isNumber) return `tel:${input}`
     // GUESS IF ADDRESS
     const isAddress = input.includes(' ') || input.includes(',')
     if (isAddress) {
