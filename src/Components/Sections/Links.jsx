@@ -21,34 +21,35 @@ import InputLogoBlock from '../Inputs/InputLogoBlock'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 import LinkDialog from '../Dialogs/LinkDialog'
 // FUNCTIONALITY
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
+import deepCompareValue from '../../Functions/deepCompareValue'
 
 function Links({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
+  const [open, setOpen] = useState(false)
   const [linkDialog, setLinkDialog] = useState(false)
-  const defaultValue = useMemo(
-    () => [
-      {
-        placeholder: 'Email',
-        hyperlink: 'lovro.zagar5@gmail.com',
-        logo: 'Email',
-      },
-      {
-        placeholder: 'Address',
-        hyperlink: '10000 Zagreb, Croatia',
-        logo: 'Address',
-      },
-      {
-        placeholder: 'GitHub',
-        hyperlink: 'https://github.com/lovrozagar',
-        logo: 'GitHub',
-      },
-    ],
-    []
-  )
+  const defaultValue = [
+    {
+      placeholder: 'Email',
+      hyperlink: 'lovro.zagar5@gmail.com',
+      logo: 'Email',
+    },
+    {
+      placeholder: 'Address',
+      hyperlink: '10000 Zagreb, Croatia',
+      logo: 'Address',
+    },
+    {
+      placeholder: 'GitHub',
+      hyperlink: 'https://github.com/lovrozagar',
+      logo: 'GitHub',
+    },
+  ]
+
   const [links, setLinks] = useState(defaultValue)
+  const [linksOld, setLinksOld] = useState(null)
 
   function getLinkLogo(logoName) {
     let logo
@@ -83,6 +84,33 @@ function Links({ onDelete, id, index }) {
     return logo
   }
 
+  function handleEditStart() {
+    setLinksOld(structuredClone(links))
+    setOnEdit(true)
+  }
+
+  function handleEditEnd() {
+    setOnEdit(false)
+    setLinksOld(null)
+    setLinks((prev) =>
+      prev.filter((link, index) =>
+        index > 0 ? link.placeholder !== '' && link.hyperlink !== '' : true
+      )
+    )
+  }
+
+  function handleDonePress() {
+    handleEditEnd()
+    handleSnackbarChange()
+    // disable hanging ripple
+    document.activeElement.blur()
+  }
+
+  function handleSnackbarChange() {
+    console.log(links, linksOld)
+    if (!deepCompareValue(links, linksOld) && !open) setOpen(true)
+  }
+
   function handleLinkAdd() {
     setLinks((prevLinks) => [
       ...prevLinks,
@@ -92,8 +120,8 @@ function Links({ onDelete, id, index }) {
 
   function guessLink(input) {
     // GUESS IF EMAIL
-    const regex = /^\S+@\S+\.\S+$/ // guess if link is mail
-    const isEmail = regex.test(input)
+    const mailRegex = /^\S+@\S+\.\S+$/ // guess if link is mail
+    const isEmail = mailRegex.test(input)
     if (isEmail) return `mailto:${input}`
     // GUESS IF ADDRESS
     const isAddress = input.includes(' ') || input.includes(',')
@@ -151,21 +179,15 @@ function Links({ onDelete, id, index }) {
     )
   }
 
-  function handleDone() {
-    setOnEdit(false)
-  }
-
   useEffect(() => {
     // Remove unnecessary spaces
     if (!onEdit) {
       setLinks((prev) =>
-        prev.map((link) => {
-          return {
-            ...link,
-            placeholder: link.placeholder.trim(),
-            hyperlink: link.hyperlink.trim(),
-          }
-        })
+        prev.map((link) => ({
+          ...link,
+          placeholder: link.placeholder.trim(),
+          hyperlink: link.hyperlink.trim(),
+        }))
       )
     }
   }, [onEdit])
@@ -182,11 +204,16 @@ function Links({ onDelete, id, index }) {
                 {...provided.dragHandleProps}
               />
               <HoverContainer
-                fn={setOnEdit}
+                title='Links'
                 onEdit={onEdit}
-                linkStop={linkDialog}
+                onEditStart={handleEditStart}
+                onEditEnd={handleEditEnd}
                 onDelete={onDelete}
+                onSnackbarChange={handleSnackbarChange}
                 isDragging={snapshot.isDragging}
+                linkStop={linkDialog}
+                open={open}
+                close={() => setOpen(false)}
               >
                 <Grid>
                   {onEdit ? (
@@ -197,7 +224,7 @@ function Links({ onDelete, id, index }) {
                       onLogoSelect={handleLogoSelect}
                       onHyperlinkChange={handleHyperlinkChange}
                       onLinkDelete={handleLinkDelete}
-                      onDone={handleDone}
+                      onDonePress={handleDonePress}
                     />
                   ) : (
                     <LinksView
@@ -206,7 +233,7 @@ function Links({ onDelete, id, index }) {
                       guessLink={guessLink}
                       open={linkDialog}
                       setOpen={setLinkDialog}
-                      setOnEdit={setOnEdit}
+                      onEditStart={handleEditStart}
                     />
                   )}
                 </Grid>
@@ -226,7 +253,7 @@ function LinksEdit({
   onLogoSelect,
   onHyperlinkChange,
   onLinkDelete,
-  onDone,
+  onDonePress,
 }) {
   return (
     <Grid gap={1.5}>
@@ -278,7 +305,7 @@ function LinksEdit({
         primaryText='Done'
         secondaryText='Add Link'
         onAdd={onLinkAdd}
-        onDone={onDone}
+        onDone={onDonePress}
       />
     </Grid>
   )
@@ -290,7 +317,7 @@ function LinksView({
   guessLink,
   open,
   setOpen,
-  setOnEdit,
+  onEditStart,
 }) {
   const [hyperlink, setHyperlink] = useState(null)
 
@@ -303,7 +330,7 @@ function LinksView({
   }
 
   function handleEdit() {
-    setOnEdit(true)
+    onEditStart()
     setOpen(false)
   }
 

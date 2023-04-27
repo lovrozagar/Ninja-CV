@@ -9,29 +9,48 @@ import SkewTitle from '../Titles/SkewTitle'
 import InputBlock from '../Inputs/InputBlock'
 import DynamicButton from '../Buttons/DynamicButton'
 // FUNCTIONALITY
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
+import deepCompareValue from '../../Functions/deepCompareValue'
 
 function Name({ onDelete, id, index }) {
-  const defaultPlaceholder = useMemo(() => {
-    return {
-      forename: '',
-      surname: '',
-    }
-  }, [])
+  const defaultPlaceholder = [{ forename: '' }, { surname: '' }]
   const [onEdit, setOnEdit] = useState(false)
+  const [open, setOpen] = useState(false)
   const [name, setName] = useState(defaultPlaceholder)
+  const [nameOld, setNameOld] = useState(null)
   const [placeholder, setPlaceholder] = useState(
     Placeholders.getFullNameRandom()
   )
 
-  function handleChange(e, key) {
-    setName((prevName) => ({ ...prevName, [key]: e.target.value }))
+  function handleEditStart() {
+    setNameOld(structuredClone(name))
+    setOnEdit(true)
   }
 
-  function handleDone() {
+  function handleEditEnd() {
     setOnEdit(false)
+    setNameOld(null)
+  }
+
+  function handleDonePress() {
+    handleEditEnd()
+    handleSnackbarChange()
+    // disable hanging ripple
+    document.activeElement.blur()
+  }
+
+  function handleSnackbarChange() {
+    if (!deepCompareValue(name, nameOld) && !open) setOpen(true)
+  }
+
+  function handleChange(e, key) {
+    setName((prev) =>
+      prev.map((namePart) =>
+        namePart.hasOwnProperty(key) ? { [key]: e.target.value } : namePart
+      )
+    )
   }
 
   useEffect(() => {
@@ -40,11 +59,14 @@ function Name({ onDelete, id, index }) {
       setPlaceholder(Placeholders.getFullNameRandom())
     }
     // Remove unnecessary spaces
-    if (!onEdit)
-      setName((prev) => ({
-        forename: prev.forename.trim(),
-        surname: prev.surname.trim(),
-      }))
+    if (!onEdit) {
+      setName((prev) =>
+        prev.map((namePartObj, index) => ({
+          [index === 0 ? 'forename' : 'surname']:
+            namePartObj[index === 0 ? 'forename' : 'surname'].trim(),
+        }))
+      )
+    }
   }, [onEdit])
 
   return (
@@ -58,10 +80,15 @@ function Name({ onDelete, id, index }) {
               {...provided.dragHandleProps}
             />
             <HoverContainer
-              fn={setOnEdit}
+              title='Name'
               onEdit={onEdit}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
               onDelete={onDelete}
+              onSnackbarChange={handleSnackbarChange}
               isDragging={snapshot.isDragging}
+              open={open}
+              close={() => setOpen(false)}
             >
               <Grid type='center'>
                 {onEdit ? (
@@ -69,7 +96,7 @@ function Name({ onDelete, id, index }) {
                     name={name}
                     placeholder={placeholder}
                     onChange={handleChange}
-                    onDone={handleDone}
+                    onDonePress={handleDonePress}
                   />
                 ) : (
                   <NameView name={name} />
@@ -83,7 +110,7 @@ function Name({ onDelete, id, index }) {
   )
 }
 
-function NameEdit({ name, placeholder, onChange, onDone }) {
+function NameEdit({ name, placeholder, onChange, onDonePress }) {
   return (
     <Grid gap={1.5}>
       <SkewTitle
@@ -92,29 +119,24 @@ function NameEdit({ name, placeholder, onChange, onDone }) {
         bgcolor='primary.main'
       />
       <Grid type='1fr 1fr'>
-        <InputBlock
-          name='Forename'
-          value={name.forename}
-          color='primary.opposite'
-          bgcolor='primary.violet'
-          placeholder={placeholder.forename}
-          onChange={(e) => onChange(e, 'forename')}
-        />
-        <InputBlock
-          name='Surname'
-          value={name.surname}
-          color='primary.opposite'
-          bgcolor='primary.violet'
-          placeholder={placeholder.surname}
-          onChange={(e) => onChange(e, 'surname')}
-        />
+        {name.map((namePart, index) => (
+          <InputBlock
+            key={index}
+            name={index === 0 ? 'forename' : 'surname'}
+            value={namePart[index === 0 ? 'forename' : 'surname']}
+            color='primary.opposite'
+            bgcolor='primary.violet'
+            placeholder={placeholder[index === 0 ? 'forename' : 'surname']}
+            onChange={(e) => onChange(e, index === 0 ? 'forename' : 'surname')}
+          />
+        ))}
       </Grid>
       <Flex type='end'>
         <DynamicButton
           text='Done'
           type='button done contained medium'
           mainColor='black'
-          onClick={onDone}
+          onClick={onDonePress}
         />
       </Flex>
     </Grid>
@@ -124,12 +146,17 @@ function NameEdit({ name, placeholder, onChange, onDone }) {
 function NameView({ name }) {
   return (
     <Flex gap={1.5} type='center'>
-      <Typography variant='h4' sx={{ fontSize: '2.5rem', fontWeight: '200' }}>
-        {name.forename.trim() || 'Forename'}
-      </Typography>
-      <Typography variant='h4' sx={{ fontSize: '2.5rem', fontWeight: '500' }}>
-        {name.surname.trim() || 'Surname'}
-      </Typography>
+      {name.map((namePart, index) => (
+        <Typography
+          key={index}
+          variant='h4'
+          fontSize='2.5rem'
+          fontWeight={index === 0 ? 200 : 500}
+        >
+          {namePart[index === 0 ? 'forename' : 'surname'] ||
+            (index === 0 ? 'Forename' : 'Surname')}
+        </Typography>
+      ))}
     </Flex>
   )
 }

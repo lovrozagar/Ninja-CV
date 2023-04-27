@@ -15,17 +15,36 @@ import Placeholders from '../../Functions/placeholders'
 
 function Position({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
+  const [open, setOpen] = useState(false)
   const [position, setPosition] = useState('')
+  const [positionOld, setPositionOld] = useState('')
   const [placeholder, setPlaceholder] = useState(
     Placeholders.getPositionRandom()
   )
 
-  function handleOnChange(e) {
-    setPosition(e.target.value)
+  function handleEditStart() {
+    setPositionOld(position)
+    setOnEdit(true)
   }
 
-  function handleDone() {
+  function handleEditEnd() {
     setOnEdit(false)
+    setPositionOld(null)
+  }
+
+  function handleDonePress() {
+    handleEditEnd()
+    handleSnackbarChange()
+    // disable hanging ripple
+    document.activeElement.blur()
+  }
+
+  function handleSnackbarChange() {
+    if (position !== positionOld) setOpen(true)
+  }
+
+  function handleChange(e) {
+    setPosition(e.target.value)
   }
 
   useEffect(() => {
@@ -46,18 +65,23 @@ function Position({ onDelete, id, index }) {
               {...provided.dragHandleProps}
             />
             <HoverContainer
-              fn={setOnEdit}
+              title='Position'
               onEdit={onEdit}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
               onDelete={onDelete}
+              onSnackbarChange={handleSnackbarChange}
               isDragging={snapshot.isDragging}
+              open={open}
+              close={() => setOpen(false)}
             >
               <Grid>
                 {onEdit ? (
                   <PositionEdit
                     position={position}
                     placeholder={placeholder}
-                    onChange={handleOnChange}
-                    onDone={handleDone}
+                    onChange={handleChange}
+                    onDonePress={handleDonePress}
                   />
                 ) : (
                   <Box>{position || 'Position'}</Box>
@@ -71,7 +95,7 @@ function Position({ onDelete, id, index }) {
   )
 }
 
-function PositionEdit({ position, placeholder, onChange, onDone }) {
+function PositionEdit({ position, placeholder, onChange, onDonePress }) {
   return (
     <Grid gap={1.5}>
       <SkewTitle
@@ -92,7 +116,7 @@ function PositionEdit({ position, placeholder, onChange, onDone }) {
           text='Done'
           type='button done contained medium'
           mainColor='black'
-          onClick={onDone}
+          onClick={onDonePress}
         />
       </Flex>
     </Grid>

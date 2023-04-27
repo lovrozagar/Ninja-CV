@@ -10,25 +10,51 @@ import InputBlock from '../Inputs/InputBlock'
 import Points from '../Text/Points'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 // FUNCTIONALITY
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
+import deepCompareValue from '../../Functions/deepCompareValue'
 import uniqid from 'uniqid'
 
 function Skills({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
+  const [open, setOpen] = useState(false)
   const defaultTitle = 'Skills'
-  const defaultSkills = useMemo(
-    () => [
-      { text: 'Ninja TeamWork', id: uniqid() },
-      { text: 'Ninja Development', id: uniqid() },
-      { text: 'Ninja Communication', id: uniqid() },
-    ],
-    []
-  )
+  const defaultSkills = [
+    { text: 'Ninja TeamWork', id: uniqid() },
+    { text: 'Ninja Development', id: uniqid() },
+    { text: 'Ninja Communication', id: uniqid() },
+  ]
   const [title, setTitle] = useState(defaultTitle)
+  const [titleOld, setTitleOld] = useState(null)
   const [skills, setSkills] = useState(defaultSkills)
+  const [skillsOld, setSkillsOld] = useState(null)
   const newSkill = { text: '', id: uniqid() }
+
+  function handleEditStart() {
+    setTitleOld(title)
+    setSkillsOld(structuredClone(skills))
+    setOnEdit(true)
+  }
+
+  function handleEditEnd() {
+    setOnEdit(false)
+    setTitleOld(null)
+    setSkillsOld(null)
+    setSkills((prev) => prev.filter((skill) => skill.text !== ''))
+  }
+
+  function handleDonePress() {
+    handleEditEnd()
+    handleSnackbarChange()
+    // disable hanging ripple
+    document.activeElement.blur()
+  }
+
+  function handleSnackbarChange() {
+    if ((!deepCompareValue(skills, skillsOld) || title !== titleOld) && !open)
+      setOpen(true)
+  }
 
   function handleTitleChange(e) {
     setTitle(e.target.value)
@@ -55,10 +81,6 @@ function Skills({ onDelete, id, index }) {
     else setSkills((prev) => prev.filter((skill) => skill.id !== id))
   }
 
-  function handleDone() {
-    setOnEdit(false)
-  }
-
   useEffect(() => {
     if (!onEdit) {
       // Remove unnecessary spaces
@@ -69,8 +91,6 @@ function Skills({ onDelete, id, index }) {
           .map((skill) => {
             return { ...skill, text: skill.text.trim() }
           })
-          // Remove empty skills
-          .filter((skill) => skill.text !== '')
       )
     }
   }, [onEdit])
@@ -86,10 +106,15 @@ function Skills({ onDelete, id, index }) {
               {...provided.dragHandleProps}
             />
             <HoverContainer
-              fn={setOnEdit}
+              title={title}
               onEdit={onEdit}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
               onDelete={onDelete}
+              onSnackbarChange={handleSnackbarChange}
               isDragging={snapshot.isDragging}
+              open={open}
+              close={() => setOpen(false)}
             >
               <Grid>
                 {onEdit ? (
@@ -101,7 +126,7 @@ function Skills({ onDelete, id, index }) {
                     onSkillAdd={handleSkillAdd}
                     onSkillChange={handleSkillChange}
                     onSkillDelete={handleSkillDelete}
-                    onDone={handleDone}
+                    onDonePress={handleDonePress}
                   />
                 ) : (
                   <SkillsView title={title} skills={skills} />
@@ -123,7 +148,7 @@ function SkillsEdit({
   onSkillDelete,
   onSkillChange,
   onSkillAdd,
-  onDone,
+  onDonePress,
 }) {
   return (
     <Grid>
@@ -157,7 +182,7 @@ function SkillsEdit({
         primaryText='Done'
         secondaryText='Add Skill'
         onAdd={onSkillAdd}
-        onDone={onDone}
+        onDone={onDonePress}
       />
     </Grid>
   )
