@@ -70,6 +70,7 @@ function InfoBar() {
       width='100%'
       bgcolor='primary.barMain'
       py={0.25}
+      boxShadow='0px -12px 30px 0px rgba(125, 137, 248, 0.5)'
     >
       <Container>
         <Flex type='between'>

@@ -145,16 +145,17 @@ function CV() {
     return component
   }
 
+  const paperStyling = {
+    boxShadow: '0px 0px 30px 0px rgba(125, 137, 248, 0.5)',
+    maxWidth: '210mm',
+    minHeight: '295mm',
+    m: '0 auto',
+    p: '1rem 0.5rem 1rem 0.25rem',
+    textAlign: 'center',
+  }
+
   return (
-    <Paper
-      sx={{
-        maxWidth: '210mm',
-        minHeight: '295mm',
-        m: '0 auto',
-        p: '0 0.5rem 0.5rem 0.5rem',
-        textAlign: 'center',
-      }}
-    >
+    <Paper sx={paperStyling}>
       <DragDropContext onDragEnd={(result) => handleDragEnd(result)}>
         <Droppable droppableId='droppable-1'>
           {(provider) => {
@@ -162,7 +163,7 @@ function CV() {
               <Box
                 ref={provider.innerRef}
                 {...provider.droppableProps}
-                style={{ display: 'grid' }}
+                style={{ display: 'grid', gap: '0.5rem' }}
               >
                 {sections.map((section, index) =>
                   getSectionType(section, index)
