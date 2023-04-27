@@ -27,7 +27,7 @@ import Placeholders from '../../Functions/placeholders'
 
 function Links({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
-  const [open, setOpen] = useState(false)
+  const [linkDialog, setLinkDialog] = useState(false)
   const defaultValue = useMemo(
     () => [
       {
@@ -184,7 +184,7 @@ function Links({ onDelete, id, index }) {
               <HoverContainer
                 fn={setOnEdit}
                 onEdit={onEdit}
-                linkStop={open}
+                linkStop={linkDialog}
                 onDelete={onDelete}
                 isDragging={snapshot.isDragging}
               >
@@ -204,8 +204,8 @@ function Links({ onDelete, id, index }) {
                       links={links}
                       getLinkLogo={getLinkLogo}
                       guessLink={guessLink}
-                      open={open}
-                      setOpen={setOpen}
+                      open={linkDialog}
+                      setOpen={setLinkDialog}
                       setOnEdit={setOnEdit}
                     />
                   )}
@@ -286,9 +286,9 @@ function LinksEdit({
 
 function LinksView({
   links,
-  open,
   getLinkLogo,
   guessLink,
+  open,
   setOpen,
   setOnEdit,
 }) {
@@ -324,7 +324,13 @@ function LinksView({
           >
             <Flex pointerEvents='hover'>{getLinkLogo(link.logo)}</Flex>
             <Flex pointerEvents='hover'>
-              <Link color='inherit' underline='hover' pointerEvents='hover'>
+              <Link
+                href={link.hyperlink}
+                color='inherit'
+                underline='hover'
+                pointerEvents='hover'
+                onClick={(e) => e.preventDefault()}
+              >
                 {link.placeholder || '[empty link]'}
               </Link>
             </Flex>
