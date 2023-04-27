@@ -7,24 +7,22 @@ function ClickOutsideGuard({
   onClickOutside,
   onOutsideHold,
   onSnackbarChange,
+  heldDown,
+  setHeldDown,
+  onDelete,
 }) {
   const [onDown, setOnDown] = useState(null)
   const [onDownIsWithin, setOnDownIsWithin] = useState(null)
   const wrapperRef = useRef(null)
 
   useEffect(() => {
-    function handleHoldOutside(e) {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target))
-        onOutsideHold()
-    }
-
     const handleMouseDown = (e) => {
+      if (!onEdit) return
       setOnDown(e.target)
       setOnDownIsWithin(wrapperRef.current.contains(e.target))
     }
 
     const handleMouseUp = (e) => {
-      console.log(onDown, e.target)
       if (!onEdit) return
 
       const downOnPaper = Boolean(onDown.closest('.MuiPaper-root'))
@@ -45,7 +43,7 @@ function ClickOutsideGuard({
         e.changedTouches[0].target.closest('.MuiPaper-root')
       )
 
-      if (!downOnPaper && !upOnPaper) onSnackbarChange()
+      if ((!downOnPaper && !upOnPaper) || !onDownIsWithin) onSnackbarChange()
       if (!downOnPaper || !wrapperRef.current.contains(e.target)) {
         onClickOutside()
         document.activeElement.blur()
@@ -56,16 +54,12 @@ function ClickOutsideGuard({
     document.addEventListener('touchstart', handleMouseDown)
     document.addEventListener('mouseup', handleMouseUp)
     document.addEventListener('touchend', handleTouchEnd)
-    document.addEventListener('mousemove', handleHoldOutside)
-    document.addEventListener('touchmove', handleHoldOutside)
 
     return () => {
       document.removeEventListener('mousedown', handleMouseDown)
       document.removeEventListener('touchstart', handleMouseDown)
       document.removeEventListener('mouseup', handleMouseUp)
       document.removeEventListener('touchend', handleTouchEnd)
-      document.removeEventListener('mousemove', handleHoldOutside)
-      document.removeEventListener('touchmove', handleHoldOutside)
     }
   }, [
     onClickOutside,
@@ -74,6 +68,9 @@ function ClickOutsideGuard({
     onEdit,
     onDown,
     onDownIsWithin,
+    heldDown,
+    setHeldDown,
+    onDelete,
   ])
 
   const guardStyling = {

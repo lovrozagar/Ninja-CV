@@ -19,12 +19,15 @@ function HoverContainer({
   const [heldDown, setHeldDown] = useState(false)
   const elementRef = useRef(null)
 
+  // Handle Hold Delete And Cancel
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    function handleHoldOutsideMouseUp(e) {
+      if (onEdit) return
+
       if (
         heldDown &&
         elementRef.current &&
-        !elementRef.current.contains(event.target)
+        !elementRef.current.contains(e.target)
       ) {
         setHeldDown(false)
       } else if (heldDown) {
@@ -32,14 +35,54 @@ function HoverContainer({
       }
     }
 
-    document.addEventListener('mouseup', handleClickOutside)
-    document.addEventListener('touchend', handleClickOutside)
+    function handleHoldOutsideMouseMove(e) {
+      if (onEdit) return
+
+      if (
+        heldDown &&
+        elementRef.current &&
+        !elementRef.current.contains(e.target)
+      ) {
+        setHeldDown(false)
+      }
+    }
+
+    function handleTouchMove() {
+      if (onEdit) return
+
+      if (heldDown && elementRef.current) {
+        setHeldDown(false)
+      }
+    }
+
+    document.addEventListener('mouseup', handleHoldOutsideMouseUp)
+    document.addEventListener('mouseover', handleHoldOutsideMouseMove)
+    document.addEventListener('touchmove', handleTouchMove)
+    document.addEventListener('touchend', handleHoldOutsideMouseUp)
 
     return () => {
-      document.removeEventListener('mouseup', handleClickOutside)
-      document.removeEventListener('touchend', handleClickOutside)
+      document.removeEventListener('mouseup', handleHoldOutsideMouseUp)
+      document.removeEventListener('mouseover', handleHoldOutsideMouseMove)
+      document.removeEventListener('touchmove', handleTouchMove)
+      document.removeEventListener('touchend', handleHoldOutsideMouseUp)
     }
-  }, [heldDown, onDelete])
+  }, [onEdit, heldDown, onDelete])
+
+  // Stop Scroll On Hold
+  useEffect(() => {
+    function handleTouchMove(e) {
+      if (onEdit) return
+
+      if (heldDown) {
+        e.preventDefault()
+      }
+    }
+    document.addEventListener('touchmove', handleTouchMove, { passive: false })
+
+    return () => {
+      document.removeEventListener('touchmove', handleTouchMove)
+    }
+  }, [onEdit, heldDown])
 
   function handleOutsideClick() {
     if (onEdit) {
@@ -54,12 +97,17 @@ function HoverContainer({
   }
 
   function handleInsideClick() {
-    if (linkStop) return
+    if (linkStop || !onDelete) return
     if (!onEdit) onEditStart()
   }
 
   function handleContextMenu(e) {
     if (onDelete && !onEdit) e.preventDefault()
+  }
+
+  function handleSnackbarClick(e) {
+    e.stopPropagation()
+    close()
   }
 
   function onStart(e) {
@@ -138,6 +186,9 @@ function HoverContainer({
       onClickOutside={handleOutsideClick}
       onOutsideHold={handleOutsideHold}
       onSnackbarChange={onSnackbarChange}
+      heldDown={heldDown}
+      setHeldDown={setHeldDown}
+      onDelete={onDelete}
     >
       <Button
         {...bind()}
@@ -151,14 +202,10 @@ function HoverContainer({
         {children}
         <Snackbar
           open={open}
-          autoHideDuration={2000}
+          autoHideDuration={1000}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           onClose={close}
-          onClick={(e) => {
-            e.stopPropagation()
-            close()
-            console.log(e.target)
-          }}
+          onClick={handleSnackbarClick}
         >
           <Alert
             variant='filled'
