@@ -15,32 +15,33 @@ import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 import DynamicButton from '../Buttons/DynamicButton'
 import IndexDeleteTitle from '../Titles/IndexDeleteTitle'
 // FUNCTIONALITY
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
+import deepCompareValue from '../../Functions/deepCompareValue'
 import uniqid from 'uniqid'
 
 function WorkExperience({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
+  const [open, setOpen] = useState(false)
   const defaultTitle = 'Work Experience'
-  const defaultWorkExperience = useMemo(
-    () => [
-      {
-        company: 'Ninja Dojo d.o.o.',
-        location: 'Ancient Japan, JP',
-        position: 'Professional Ninja',
-        time: 'Sep 2021 - Present',
-        id: uniqid(),
-        points: [
-          { text: 'Trained to become a ninja', id: uniqid() },
-          { text: 'Successfully sliced thousands of resumes', id: uniqid() },
-        ],
-      },
-    ],
-    []
-  )
+  const defaultExperience = [
+    {
+      company: 'Ninja Dojo d.o.o.',
+      location: 'Ancient Japan, JP',
+      position: 'Professional Ninja',
+      time: 'Sep 2021 - Present',
+      id: uniqid(),
+      points: [
+        { text: 'Trained to become a ninja', id: uniqid() },
+        { text: 'Successfully sliced thousands of resumes', id: uniqid() },
+      ],
+    },
+  ]
   const [title, setTitle] = useState(defaultTitle)
-  const [workExperience, setWorkExperience] = useState(defaultWorkExperience)
+  const [titleOld, setTitleOld] = useState(null)
+  const [workExperience, setWorkExperience] = useState(defaultExperience)
+  const [workExperienceOld, setWorkExperienceOld] = useState(defaultExperience)
   const newExperience = {
     company: '',
     location: '',
@@ -50,6 +51,34 @@ function WorkExperience({ onDelete, id, index }) {
     id: uniqid(),
   }
   const newPoint = { text: '', id: uniqid() }
+
+  function handleEditStart() {
+    setTitleOld(title)
+    setWorkExperienceOld(structuredClone(workExperience))
+    setOnEdit(true)
+  }
+
+  function handleEditEnd() {
+    setOnEdit(false)
+    setTitleOld(null)
+    setWorkExperienceOld(null)
+  }
+
+  function handleDonePress() {
+    handleEditEnd()
+    handleSnackbarChange()
+    // disable hanging ripple
+    document.activeElement.blur()
+  }
+
+  function handleSnackbarChange() {
+    if (
+      (!deepCompareValue(workExperience, workExperienceOld) ||
+        title !== titleOld) &&
+      !open
+    )
+      setOpen(true)
+  }
 
   function handleTitleChange(e) {
     setTitle(e.target.value)
@@ -122,10 +151,6 @@ function WorkExperience({ onDelete, id, index }) {
     )
   }
 
-  function handleDone() {
-    setOnEdit(false)
-  }
-
   useEffect(() => {
     if (!onEdit) {
       // Remove unnecessary spaces
@@ -173,10 +198,15 @@ function WorkExperience({ onDelete, id, index }) {
               {...provided.dragHandleProps}
             />
             <HoverContainer
-              fn={setOnEdit}
+              title={title}
               onEdit={onEdit}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
               onDelete={onDelete}
+              onSnackbarChange={handleSnackbarChange}
               isDragging={snapshot.isDragging}
+              open={open}
+              close={() => setOpen(false)}
             >
               <Grid>
                 {onEdit ? (
@@ -191,7 +221,7 @@ function WorkExperience({ onDelete, id, index }) {
                     onPointAdd={handlePointAdd}
                     onPointChange={handlePointChange}
                     onPointDelete={handlePointDelete}
-                    onDone={handleDone}
+                    onDonePress={handleDonePress}
                   />
                 ) : (
                   <WorkExperienceView
@@ -219,13 +249,13 @@ function WorkExperienceEdit({
   onPointAdd,
   onPointChange,
   onPointDelete,
-  onDone,
+  onDonePress,
 }) {
   return (
     <Grid>
       <InputBlock
         button='restore'
-        color='primary.text'
+        color='primary.opposite'
         bgcolor='black'
         name='Section Title'
         placeholder='e.g. Work Experience'
@@ -307,7 +337,7 @@ function WorkExperienceEdit({
         primaryText='Done'
         secondaryText='Add Experience'
         onAdd={onExperienceAdd}
-        onDone={onDone}
+        onDone={onDonePress}
       />
     </Grid>
   )

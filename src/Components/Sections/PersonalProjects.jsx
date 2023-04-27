@@ -17,13 +17,15 @@ import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
+import deepCompareValue from '../../Functions/deepCompareValue'
 import uniqid from 'uniqid'
 
 function PersonalProjects({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
+  const [open, setOpen] = useState(false)
   const [linkDialog, setLinkDialog] = useState(false)
   const defaultTitle = 'Personal Projects'
-  const defaultPersonalProjects = [
+  const defaultProjects = [
     {
       name: 'Ninja CV App',
       showcasePlaceholder: 'Live',
@@ -38,9 +40,9 @@ function PersonalProjects({ onDelete, id, index }) {
     },
   ]
   const [title, setTitle] = useState(defaultTitle)
-  const [personalProjects, setPersonalProjects] = useState(
-    defaultPersonalProjects
-  )
+  const [titleOld, setTitleOld] = useState(null)
+  const [personalProjects, setPersonalProjects] = useState(defaultProjects)
+  const [personalProjectsOld, setPersonalProjectsOld] = useState(null)
   const newProject = {
     name: '',
     showcasePlaceholder: '',
@@ -51,6 +53,34 @@ function PersonalProjects({ onDelete, id, index }) {
     points: [{ text: '', id: uniqid() }],
   }
   const newPoint = { text: '', id: uniqid() }
+
+  function handleEditStart() {
+    setTitleOld(title)
+    setPersonalProjectsOld(structuredClone(personalProjects))
+    setOnEdit(true)
+  }
+
+  function handleEditEnd() {
+    setOnEdit(false)
+    setTitleOld(null)
+    setPersonalProjectsOld(null)
+  }
+
+  function handleDonePress() {
+    handleEditEnd()
+    handleSnackbarChange()
+    // disable hanging ripple
+    document.activeElement.blur()
+  }
+
+  function handleSnackbarChange() {
+    if (
+      (!deepCompareValue(personalProjects, personalProjectsOld) ||
+        title !== titleOld) &&
+      !open
+    )
+      setOpen(true)
+  }
 
   function handleTitleChange(e) {
     setTitle(e.target.value)
@@ -121,10 +151,6 @@ function PersonalProjects({ onDelete, id, index }) {
     )
   }
 
-  function handleDone() {
-    setOnEdit(false)
-  }
-
   useEffect(() => {
     if (!onEdit) {
       // Remove unnecessary spaces
@@ -174,11 +200,15 @@ function PersonalProjects({ onDelete, id, index }) {
               {...provided.dragHandleProps}
             />
             <HoverContainer
+              title={title}
               onEdit={onEdit}
-              fn={setOnEdit}
-              linkStop={linkDialog}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
               onDelete={onDelete}
+              onSnackbarChange={handleSnackbarChange}
               isDragging={snapshot.isDragging}
+              open={open}
+              close={() => setOpen(false)}
             >
               <Grid>
                 {onEdit ? (
@@ -193,7 +223,7 @@ function PersonalProjects({ onDelete, id, index }) {
                     onPointAdd={handlePointAdd}
                     onPointChange={handlePointChange}
                     onPointDelete={handlePointDelete}
-                    onDone={handleDone}
+                    onDonePress={handleDonePress}
                   />
                 ) : (
                   <PersonalProjectsView
@@ -201,7 +231,7 @@ function PersonalProjects({ onDelete, id, index }) {
                     personalProjects={personalProjects}
                     open={linkDialog}
                     setOpen={setLinkDialog}
-                    setOnEdit={setOnEdit}
+                    onEditStart={handleEditStart}
                   />
                 )}
               </Grid>
@@ -224,13 +254,13 @@ function PersonalProjectsEdit({
   onPointAdd,
   onPointChange,
   onPointDelete,
-  onDone,
+  onDonePress,
 }) {
   return (
     <Grid gap={1.5}>
       <InputBlock
         button='restore'
-        color='primary.text'
+        color='primary.opposite'
         bgcolor='black'
         name='Section Title'
         placeholder='e.g. Personal Projects'
@@ -320,7 +350,7 @@ function PersonalProjectsEdit({
         primaryText='Done'
         secondaryText='Add Project'
         onAdd={onProjectAdd}
-        onDone={onDone}
+        onDone={onDonePress}
       />
     </Grid>
   )
@@ -331,7 +361,7 @@ function PersonalProjectsView({
   personalProjects,
   open,
   setOpen,
-  setOnEdit,
+  onEditStart,
 }) {
   const [hyperlink, setHyperlink] = useState(null)
 
@@ -344,7 +374,7 @@ function PersonalProjectsView({
   }
 
   function handleEdit() {
-    setOnEdit(true)
+    onEditStart()
     setOpen(false)
   }
 

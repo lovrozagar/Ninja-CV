@@ -12,10 +12,12 @@ import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
+import deepCompareValue from '../../Functions/deepCompareValue'
 import uniqid from 'uniqid'
 
 function AboutMe({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
+  const [open, setOpen] = useState(false)
   const defaultTitle = 'About Me'
   const defaultAboutMe = [
     {
@@ -28,10 +30,36 @@ function AboutMe({ onDelete, id, index }) {
     },
   ]
   const [title, setTitle] = useState(defaultTitle)
+  const [titleOld, setTitleOld] = useState(null)
   const [aboutMe, setAboutMe] = useState(defaultAboutMe)
+  const [aboutMeOld, setAboutMeOld] = useState(defaultAboutMe)
   const newAboutMe = {
     text: '',
     id: uniqid(),
+  }
+
+  function handleEditStart() {
+    setTitleOld(title)
+    setAboutMeOld(structuredClone(aboutMe))
+    setOnEdit(true)
+  }
+
+  function handleEditEnd() {
+    setOnEdit(false)
+    setTitleOld(null)
+    setAboutMeOld(null)
+  }
+
+  function handleDonePress() {
+    handleEditEnd()
+    handleSnackbarChange()
+    // disable hanging ripple
+    document.activeElement.blur()
+  }
+
+  function handleSnackbarChange() {
+    if ((!deepCompareValue(aboutMe, aboutMeOld) || title !== titleOld) && !open)
+      setOpen(true)
   }
 
   function handleTitleReset() {
@@ -61,10 +89,6 @@ function AboutMe({ onDelete, id, index }) {
     else setAboutMe((prev) => prev.filter((about) => about.id !== id))
   }
 
-  function handleDone() {
-    setOnEdit(false)
-  }
-
   useEffect(() => {
     if (!onEdit) {
       // Remove unnecessary spaces
@@ -92,10 +116,15 @@ function AboutMe({ onDelete, id, index }) {
               {...provided.dragHandleProps}
             />
             <HoverContainer
+              title={title}
               onEdit={onEdit}
-              fn={setOnEdit}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
               onDelete={onDelete}
+              onSnackbarChange={handleSnackbarChange}
               isDragging={snapshot.isDragging}
+              open={open}
+              close={() => setOpen(false)}
             >
               <Grid>
                 {onEdit ? (
@@ -107,7 +136,7 @@ function AboutMe({ onDelete, id, index }) {
                     onParagraphAdd={handleParagraphAdd}
                     onParagraphChange={handleParagraphChange}
                     onParagraphDelete={handleParagraphDelete}
-                    onDone={handleDone}
+                    onDonePress={handleDonePress}
                   />
                 ) : (
                   <AboutMeView title={title} aboutMe={aboutMe} />
@@ -129,7 +158,7 @@ function AboutMeEdit({
   onParagraphAdd,
   onParagraphChange,
   onParagraphDelete,
-  onDone,
+  onDonePress,
 }) {
   return (
     <Grid gap={1.5}>
@@ -162,7 +191,7 @@ function AboutMeEdit({
         primaryText='Done'
         secondaryText='Add Skill'
         onAdd={onParagraphAdd}
-        onDone={onDone}
+        onDone={onDonePress}
       />
     </Grid>
   )

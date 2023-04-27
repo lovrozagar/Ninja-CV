@@ -15,34 +15,35 @@ import Points from '../Text/Points'
 import DynamicButton from '../Buttons/DynamicButton'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 // FUNCTIONALITY
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
+import deepCompareValue from '../../Functions/deepCompareValue'
 import uniqid from 'uniqid'
 
 function Education({ onDelete, id, index }) {
   const [onEdit, setOnEdit] = useState(false)
+  const [open, setOpen] = useState(false)
   const defaultTitle = 'Education'
-  const defaultEducation = useMemo(
-    () => [
-      {
-        school: 'Ninja School of Engineering',
-        location: 'Zagreb, Croatia',
-        profession: 'Computer Scientist',
-        time: 'Sep 2015 - May 2019',
-        id: uniqid(),
-        points: [
-          {
-            text: 'Learned the basics of different computer science fields.',
-            id: uniqid(),
-          },
-        ],
-      },
-    ],
-    []
-  )
+  const defaultEducation = [
+    {
+      school: 'Ninja School of Engineering',
+      location: 'Zagreb, Croatia',
+      profession: 'Computer Scientist',
+      time: 'Sep 2015 - May 2019',
+      id: uniqid(),
+      points: [
+        {
+          text: 'Learned the basics of different computer science fields.',
+          id: uniqid(),
+        },
+      ],
+    },
+  ]
   const [title, setTitle] = useState(defaultTitle)
+  const [titleOld, setTitleOld] = useState(null)
   const [education, setEducation] = useState(defaultEducation)
+  const [educationOld, setEducationOld] = useState(defaultEducation)
   const newEducation = {
     school: '',
     location: '',
@@ -52,6 +53,33 @@ function Education({ onDelete, id, index }) {
     id: uniqid(),
   }
   const newPoint = { text: '', id: uniqid() }
+
+  function handleEditStart() {
+    setTitleOld(title)
+    setEducationOld(structuredClone(education))
+    setOnEdit(true)
+  }
+
+  function handleEditEnd() {
+    setOnEdit(false)
+    setTitleOld(null)
+    setEducationOld(null)
+  }
+
+  function handleDonePress() {
+    handleEditEnd()
+    handleSnackbarChange()
+    // disable hanging ripple
+    document.activeElement.blur()
+  }
+
+  function handleSnackbarChange() {
+    if (
+      (!deepCompareValue(education, educationOld) || title !== titleOld) &&
+      !open
+    )
+      setOpen(true)
+  }
 
   function handleTitleChange(e) {
     setTitle(e.target.value)
@@ -122,10 +150,6 @@ function Education({ onDelete, id, index }) {
     )
   }
 
-  function handleDone() {
-    setOnEdit(false)
-  }
-
   useEffect(() => {
     if (!onEdit) {
       // Remove unnecessary spaces
@@ -173,10 +197,15 @@ function Education({ onDelete, id, index }) {
               {...provided.dragHandleProps}
             />
             <HoverContainer
-              fn={setOnEdit}
+              title={title}
               onEdit={onEdit}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
               onDelete={onDelete}
+              onSnackbarChange={handleSnackbarChange}
               isDragging={snapshot.isDragging}
+              open={open}
+              close={() => setOpen(false)}
             >
               <Grid>
                 {onEdit ? (
@@ -191,7 +220,7 @@ function Education({ onDelete, id, index }) {
                     onPointAdd={handlePointAdd}
                     onPointChange={handlePointChange}
                     onPointDelete={handlePointDelete}
-                    onDone={handleDone}
+                    onDonePress={handleDonePress}
                   />
                 ) : (
                   <EducationView title={title} education={education} />
@@ -216,13 +245,13 @@ function EducationEdit({
   onPointAdd,
   onPointChange,
   onPointDelete,
-  onDone,
+  onDonePress,
 }) {
   return (
     <Grid>
       <InputBlock
         button='restore'
-        color='primary.text'
+        color='primary.opposite'
         bgcolor='black'
         name='Section Title'
         placeholder='e.g Education'
@@ -304,7 +333,7 @@ function EducationEdit({
         primaryText='Done'
         secondaryText='Add Education'
         onAdd={onEducationAdd}
-        onDone={onDone}
+        onDone={onDonePress}
       />
     </Grid>
   )
