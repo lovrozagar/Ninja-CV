@@ -15,9 +15,26 @@ function HoverContainer({
   isDragging,
   open,
   close,
+  ...props
 }) {
   const [heldDown, setHeldDown] = useState(false)
+  const [delayed, setDelayed] = useState(false)
   const elementRef = useRef(null)
+  let rippleTimeout = null
+  let scrollTimeout = null
+
+  // Handle First Ripple delay
+  useEffect(() => {
+    if (onEdit) {
+      rippleTimeout = setTimeout(() => {
+        setDelayed(true)
+      }, 250)
+    }
+    if (!onEdit) {
+      clearTimeout(rippleTimeout)
+      setDelayed(false)
+    }
+  }, [onEdit])
 
   // Handle Hold Delete And Cancel
   useEffect(() => {
@@ -84,12 +101,6 @@ function HoverContainer({
     }
   }, [onEdit, heldDown])
 
-  function handleOutsideClick() {
-    if (onEdit) {
-      onEditEnd()
-    }
-  }
-
   function handleOutsideHold() {
     if (!onEdit && heldDown) {
       setHeldDown(false)
@@ -98,7 +109,21 @@ function HoverContainer({
 
   function handleInsideClick() {
     if (linkStop || !onDelete) return
-    if (!onEdit) onEditStart()
+    if (!onEdit) {
+      onEditStart()
+      scrollTimeout = setTimeout(() => {
+        elementRef.current.scrollIntoView({
+          behavior: 'smooth',
+        })
+      }, 0)
+    }
+  }
+
+  function handleOutsideClick() {
+    if (onEdit) {
+      onEditEnd()
+      clearTimeout(scrollTimeout)
+    }
   }
 
   function handleContextMenu(e) {
@@ -139,6 +164,7 @@ function HoverContainer({
 
   const styling = {
     width: '100%',
+    scrollMargin: '150px',
     p: onEdit ? 3 : '0.5rem',
     textTransform: 'none',
     fontWeight: 'normal',
@@ -192,11 +218,12 @@ function HoverContainer({
     >
       <Button
         {...bind()}
+        {...props}
         ref={elementRef}
         component='div'
         onClick={handleInsideClick}
         onContextMenu={handleContextMenu}
-        disableRipple={open || onEdit || heldDown || linkStop ? true : false}
+        disableRipple={delayed || open || heldDown || linkStop ? true : false}
         sx={styling}
       >
         {children}
@@ -206,10 +233,11 @@ function HoverContainer({
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           onClose={close}
           onClick={handleSnackbarClick}
+          sx={{ bgcolor: 'primary.backgroundMain' }}
         >
           <Alert
             variant='filled'
-            color={'violet'}
+            color='violet'
             sx={{ fontWeight: '600', color: 'primary.violet' }}
           >
             {`${title || ''} saved`}
