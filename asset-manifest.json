@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/Ninja-CV/static/css/main.9aa6d515.css",
-    "main.js": "/Ninja-CV/static/js/main.a8bf7e4c.js",
+    "main.js": "/Ninja-CV/static/js/main.b15a3e98.js",
     "index.html": "/Ninja-CV/index.html",
     "main.9aa6d515.css.map": "/Ninja-CV/static/css/main.9aa6d515.css.map",
-    "main.a8bf7e4c.js.map": "/Ninja-CV/static/js/main.a8bf7e4c.js.map"
+    "main.b15a3e98.js.map": "/Ninja-CV/static/js/main.b15a3e98.js.map"
   },
   "entrypoints": [
     "static/css/main.9aa6d515.css",
-    "static/js/main.a8bf7e4c.js"
+    "static/js/main.b15a3e98.js"
   ]
 }
