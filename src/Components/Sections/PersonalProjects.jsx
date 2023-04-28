@@ -3,6 +3,7 @@ import { Box, Typography } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Flex from '../Containers/Flex'
 import Grid from '../Containers/Grid'
+import BreakpointGrid from '../Containers/BreakpointGrid'
 import Drag from '../Containers/Drag'
 import DragButton from '../Buttons/DragButton'
 import SectionTitleView from '../Titles/SectionTitleView'
@@ -283,7 +284,7 @@ function PersonalProjectsEdit({
               value={project.name}
               onChange={(e) => onProjectChange(e, project.id, 'name')}
             />
-            <Grid type='1fr 1fr'>
+            <BreakpointGrid>
               <InputBlock
                 color='primary.opposite'
                 bgcolor='primary.violet'
@@ -320,7 +321,8 @@ function PersonalProjectsEdit({
                 value={project.docsLink}
                 onChange={(e) => onProjectChange(e, project.id, 'docsLink')}
               />
-            </Grid>
+            </BreakpointGrid>
+
             {project.points.map((point, index) => {
               return (
                 <InputAreaBlock

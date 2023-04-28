@@ -3,6 +3,7 @@ import { Box } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Flex from '../Containers/Flex'
 import Grid from '../Containers/Grid'
+import BreakpointGrid from '../Containers/BreakpointGrid'
 import Drag from '../Containers/Drag'
 import DragButton from '../Buttons/DragButton'
 import SectionTitleView from '../Titles/SectionTitleView'
@@ -262,13 +263,11 @@ function EducationEdit({
       {education.map((ed, index) => {
         return (
           <Grid key={ed.id}>
-            <Grid type='1fr 1fr'>
-              <Box gridColumn='1/3'>
-                <IndexDeleteTitle
-                  title={`${index + 1}. Education`}
-                  onDelete={() => onEducationDelete(ed.id)}
-                />
-              </Box>
+            <IndexDeleteTitle
+              title={`${index + 1}. Education`}
+              onDelete={() => onEducationDelete(ed.id)}
+            />
+            <BreakpointGrid>
               <InputBlock
                 color='primary.opposite'
                 bgcolor='primary.violet'
@@ -285,8 +284,6 @@ function EducationEdit({
                 value={ed.location}
                 onChange={(e) => onEducationChange(e, ed.id, 'location')}
               />
-            </Grid>
-            <Grid type='1fr 1fr'>
               <InputBlock
                 color='primary.opposite'
                 bgcolor='primary.violet'
@@ -303,7 +300,7 @@ function EducationEdit({
                 value={ed.time}
                 onChange={(e) => onEducationChange(e, ed.id, 'time')}
               />
-            </Grid>
+            </BreakpointGrid>
             {ed.points.map((point, index) => {
               return (
                 <InputAreaBlock

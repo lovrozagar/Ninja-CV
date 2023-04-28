@@ -3,6 +3,7 @@ import { Box } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Flex from '../Containers/Flex'
 import Grid from '../Containers/Grid'
+import BreakpointGrid from '../Containers/BreakpointGrid'
 import Drag from '../Containers/Drag'
 import DragButton from '../Buttons/DragButton'
 import SectionTitleView from '../Titles/SectionTitleView'
@@ -266,13 +267,11 @@ function WorkExperienceEdit({
       {workExperience.map((work, index) => {
         return (
           <Grid key={work.id}>
-            <Grid type='1fr 1fr'>
-              <Box gridColumn='1/3'>
-                <IndexDeleteTitle
-                  title={`${index + 1}. Experience`}
-                  onDelete={() => onExperienceDelete(work.id)}
-                />
-              </Box>
+            <IndexDeleteTitle
+              title={`${index + 1}. Experience`}
+              onDelete={() => onExperienceDelete(work.id)}
+            />
+            <BreakpointGrid>
               <InputBlock
                 color='primary.opposite'
                 bgcolor='primary.violet'
@@ -289,8 +288,6 @@ function WorkExperienceEdit({
                 value={work.location}
                 onChange={(e) => onExperienceChange(e, work.id, 'location')}
               />
-            </Grid>
-            <Grid type='1fr 1fr'>
               <InputBlock
                 color='primary.opposite'
                 bgcolor='primary.violet'
@@ -307,7 +304,7 @@ function WorkExperienceEdit({
                 value={work.time}
                 onChange={(e) => onExperienceChange(e, work.id, 'time')}
               />
-            </Grid>
+            </BreakpointGrid>
             {work.points.map((point, index) => {
               return (
                 <InputAreaBlock
