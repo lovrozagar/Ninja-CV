@@ -208,6 +208,7 @@ function PersonalProjects({ onDelete, id, index }) {
               onDelete={onDelete}
               onSnackbarChange={handleSnackbarChange}
               isDragging={snapshot.isDragging}
+              linkStop={linkDialog}
               open={open}
               close={() => setOpen(false)}
             >
@@ -389,12 +390,12 @@ function PersonalProjectsView({
   return (
     <Box>
       <SectionTitleView title={title || 'Personal Projects'} />
-      <Grid>
+      <Grid marginTop={0.5}>
         {personalProjects.map((project) => {
           return (
-            <Box key={project.id}>
+            <Box key={project.id} marginTop={0.5}>
               {project.name !== '' && (
-                <Box key={project.id}>
+                <Grid gap={0.15}>
                   <Flex type='between'>
                     <Typography fontSize={16} fontWeight='600'>
                       {project.name}
@@ -413,7 +414,7 @@ function PersonalProjectsView({
                     />
                   </Flex>
                   <Points array={project.points} />
-                </Box>
+                </Grid>
               )}
             </Box>
           )

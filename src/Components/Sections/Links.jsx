@@ -356,7 +356,7 @@ function LinksView({
             <Flex pointerEvents='hover'>{getLinkLogo(link.logo)}</Flex>
             <Flex pointerEvents='hover'>
               <Link
-                href={link.hyperlink}
+                href={guessLink(link.hyperlink)}
                 color='inherit'
                 underline='hover'
                 pointerEvents='hover'

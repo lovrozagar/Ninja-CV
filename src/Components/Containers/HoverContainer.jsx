@@ -145,7 +145,7 @@ function HoverContainer({
 
   const bind = useLongPress(
     () => {
-      if (onDelete && !onEdit) setHeldDown(true)
+      if (onDelete && !onEdit && !linkStop) setHeldDown(true)
     },
     {
       onStart,
@@ -203,6 +203,14 @@ function HoverContainer({
       boxShadow: heldDown
         ? '0 1px primary.transparentMain'
         : '0 1px primary.transparentGrey',
+    },
+    '@media print': {
+      mb:
+        title === 'Name' || title === 'Position' || title === 'Links'
+          ? '0.25rem'
+          : '1rem',
+      p: '0',
+      backgroundImage: 'none',
     },
   }
 
