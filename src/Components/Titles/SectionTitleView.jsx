@@ -12,24 +12,33 @@ function SectionTitleView({ title }) {
 
 function Title({ title }) {
   return (
-    <Typography variant='h5' fontWeight='600' lineHeight='1' gutterBottom>
+    <Typography variant='h5' fontWeight='600' lineHeight='1'>
       {title}
     </Typography>
   )
 }
 
 function BottomLine() {
-  return (
-    <Box
-      sx={{
-        position: 'relative',
-        bottom: 12,
-        borderBottom: 1,
-        boxShadow: '0 1px rgba(0, 0, 0, 0.25)',
-        ml: 0.5,
-      }}
-    ></Box>
-  )
+  const styling = {
+    position: 'relative',
+    bottom: 4,
+    height: '100%',
+    borderBottom: 1,
+    ml: 0.5,
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      zIndex: 10,
+      left: 0,
+      top: 0,
+      width: '100%',
+      height: '100%',
+      boxShadow: '0 3px 0px -1px currentColor',
+      opacity: 0.25,
+    },
+  }
+
+  return <Box sx={styling}></Box>
 }
 
 export default SectionTitleView
