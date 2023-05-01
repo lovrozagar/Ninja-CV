@@ -13,13 +13,23 @@ import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
 import Placeholders from '../../Functions/placeholders'
 import deepCompareValue from '../../Functions/deepCompareValue'
+import exampleOrLocal from '../../Functions/exampleOrLocal'
 
-function Name({ onDelete, id, index }) {
-  const defaultPlaceholder = [{ forename: '' }, { surname: '' }]
+function Name({
+  onDelete,
+  id,
+  index,
+  sections,
+  setSections,
+  isExample = false,
+}) {
   const [onEdit, setOnEdit] = useState(false)
   const [open, setOpen] = useState(false)
-  const [name, setName] = useState(defaultPlaceholder)
+
+  const example = [{ forename: '' }, { surname: '' }]
+  const [name, setName] = useState(() => exampleOrLocal(isExample, example, id))
   const [nameOld, setNameOld] = useState(null)
+
   const [placeholder, setPlaceholder] = useState(
     Placeholders.getFullNameRandom()
   )
@@ -32,6 +42,13 @@ function Name({ onDelete, id, index }) {
   function handleEditEnd() {
     setOnEdit(false)
     setNameOld(null)
+
+    const updatedSection = sections.map((section) =>
+      section.id === id ? { ...section, content: name } : section
+    )
+
+    setSections(updatedSection)
+    localStorage.setItem('sections', JSON.stringify(updatedSection))
   }
 
   function handleDonePress() {
@@ -126,6 +143,7 @@ function NameEdit({ name, placeholder, onChange, onDonePress }) {
             value={namePart[index === 0 ? 'forename' : 'surname']}
             color='primary.opposite'
             bgcolor='primary.violet'
+            length={16}
             placeholder={placeholder[index === 0 ? 'forename' : 'surname']}
             onChange={(e) => onChange(e, index === 0 ? 'forename' : 'surname')}
           />
