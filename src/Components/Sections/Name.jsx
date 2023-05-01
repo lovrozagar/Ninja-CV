@@ -11,23 +11,17 @@ import DynamicButton from '../Buttons/DynamicButton'
 // FUNCTIONALITY
 import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
+import { getNameExample } from '../../Functions/examples'
 import Placeholders from '../../Functions/placeholders'
 import deepCompareValue from '../../Functions/deepCompareValue'
-import exampleOrLocal from '../../Functions/exampleOrLocal'
+import { getSectionData } from '../../Functions/getSavedData'
 
-function Name({
-  onDelete,
-  id,
-  index,
-  sections,
-  setSections,
-  isExample = false,
-}) {
+function Name({ onDelete, id, index, sections, setSections }) {
   const [onEdit, setOnEdit] = useState(false)
   const [open, setOpen] = useState(false)
 
-  const example = [{ forename: '' }, { surname: '' }]
-  const [name, setName] = useState(() => exampleOrLocal(isExample, example, id))
+  const example = getNameExample()
+  const [name, setName] = useState(() => getSectionData(example, id))
   const [nameOld, setNameOld] = useState(null)
 
   const [placeholder, setPlaceholder] = useState(
@@ -43,12 +37,15 @@ function Name({
     setOnEdit(false)
     setNameOld(null)
 
-    const updatedSection = sections.map((section) =>
-      section.id === id ? { ...section, content: name } : section
-    )
-
-    setSections(updatedSection)
-    localStorage.setItem('sections', JSON.stringify(updatedSection))
+    setSections((prev) => {
+      console.log(prev, '1')
+      const updatedSections = prev.map((section) =>
+        section.id === id ? { ...section, content: name } : section
+      )
+      localStorage.setItem('sections', JSON.stringify(updatedSections))
+      console.log(updatedSections, '2')
+      return updatedSections
+    })
   }
 
   function handleDonePress() {

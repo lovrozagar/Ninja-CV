@@ -7,6 +7,7 @@ import ClearShowButtons from './Components/Buttons/ClearShowButtons'
 // FUNCTIONALITY
 import { useRef, useState } from 'react'
 import { getSectionExamples } from './Functions/examples'
+import { getAppData } from './Functions/getSavedData'
 
 const theme = createTheme({
   palette: {
@@ -46,7 +47,7 @@ const theme = createTheme({
 
 function App() {
   const examples = getSectionExamples()
-  const [sections, setSections] = useState(examples)
+  const [sections, setSections] = useState(() => getAppData(examples))
   const [storageUpdate, setStorageUpdate] = useState(0)
 
   function handleClearPaper() {
