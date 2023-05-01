@@ -1,6 +1,5 @@
 // COMPONENTS
 import { Box, Paper } from '@mui/material'
-import AddSection from './Dropdowns/AddSection'
 import Name from './Sections/Name'
 import Position from './Sections/Position'
 import Links from './Sections/Links'
@@ -9,26 +8,17 @@ import WorkExperience from './Sections/WorkExperience'
 import PersonalProjects from './Sections/PersonalProjects'
 import Education from './Sections/Education'
 import AboutMe from './Sections/AboutMe'
+import AddSection from './Dropdowns/AddSection'
 // FUNCTIONALITY
-import { useState } from 'react'
+import { forwardRef } from 'react'
 import { DragDropContext, Droppable } from '@hello-pangea/dnd'
-import uniqid from 'uniqid'
 
-function CV() {
-  // HOOKS
-  const [sections, setSections] = useState([
-    { name: 'Name', id: uniqid() },
-    { name: 'Position', id: uniqid() },
-    { name: 'Links', id: uniqid() },
-    { name: 'Skills', id: uniqid() },
-    { name: 'Work Experience', id: uniqid() },
-    { name: 'Personal Projects', id: uniqid() },
-    { name: 'Education', id: uniqid() },
-    { name: 'About Me', id: uniqid() },
-  ])
-
+const CV = forwardRef(({ sections, setSections }, ref) => {
   function handleAdd(e) {
-    setSections((prev) => [...prev, { name: e.target.value, id: uniqid() }])
+    setSections((prev) => [
+      ...prev,
+      { name: e.target.value, id: `section-${prev.length + 1}` },
+    ])
   }
 
   function handleDelete(id) {
@@ -63,6 +53,8 @@ function CV() {
             key={section.id}
             id={section.id}
             index={index}
+            sections={sections}
+            setSections={setSections}
             onDelete={() => handleDelete(section.id)}
           />
         )
@@ -146,16 +138,36 @@ function CV() {
   }
 
   const paperStyling = {
-    boxShadow: '0px 0px 30px 0px rgba(125, 137, 248, 0.5)',
     maxWidth: '210mm',
     minHeight: '295mm',
     m: '0 auto',
     p: '1rem 0.5rem 1rem 0.25rem',
     textAlign: 'center',
+    boxShadow: '0px 0px 30px 0px rgba(125, 137, 248, 0.5)',
+    '@media (max-width: 330px)': {
+      '&': {
+        marginTop: '7.25rem',
+      },
+    },
+    '@media print': {
+      minHeight: 'unset',
+      m: '0',
+      p: '0',
+      border: 'none',
+      outline: 'none',
+      boxShadow: 'none',
+    },
+  }
+  const containerStyling = {
+    display: 'grid',
+    gap: '0.5rem',
+    '@media print': {
+      gap: '0',
+    },
   }
 
   return (
-    <Paper sx={paperStyling}>
+    <Paper ref={ref} sx={paperStyling}>
       <DragDropContext onDragEnd={(result) => handleDragEnd(result)}>
         <Droppable droppableId='droppable-1'>
           {(provider) => {
@@ -163,7 +175,7 @@ function CV() {
               <Box
                 ref={provider.innerRef}
                 {...provider.droppableProps}
-                style={{ display: 'grid', gap: '0.5rem' }}
+                sx={containerStyling}
               >
                 {sections.map((section, index) =>
                   getSectionType(section, index)
@@ -177,6 +189,6 @@ function CV() {
       <AddSection onAdd={handleAdd} />
     </Paper>
   )
-}
+})
 
 export default CV
