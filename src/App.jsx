@@ -3,7 +3,7 @@ import { createTheme, ThemeProvider, Box } from '@mui/material'
 import InfoBar from './Components/InfoBar'
 import CV from './Components/CV'
 import GithubButtonRow from './Components/GithubButtonRow'
-import ClearShowButtons from './Components/Buttons/ClearShowButtons'
+import ClearResetButtons from './Components/Buttons/ClearResetButtons'
 // FUNCTIONALITY
 import { useRef, useState } from 'react'
 import { getSectionExamples } from './Functions/examples'
@@ -87,7 +87,7 @@ function App() {
         <InfoBar ref={componentRef} />
         <Box margin='3.25rem 1rem 1rem 1rem'>
           <Box sx={{ maxWidth: '210mm', m: '0 auto' }}>
-            <ClearShowButtons
+            <ClearResetButtons
               onClear={handleClearPaper}
               onReset={handleResetExamples}
             />
