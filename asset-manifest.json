@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/Ninja-CV/static/css/main.5b1955e5.css",
-    "main.js": "/Ninja-CV/static/js/main.395140bf.js",
+    "main.js": "/Ninja-CV/static/js/main.bda9168a.js",
     "static/media/shuriken.svg": "/Ninja-CV/static/media/shuriken.f31414282be1deff0a88b090da4d6fda.svg",
     "index.html": "/Ninja-CV/index.html",
     "main.5b1955e5.css.map": "/Ninja-CV/static/css/main.5b1955e5.css.map",
-    "main.395140bf.js.map": "/Ninja-CV/static/js/main.395140bf.js.map"
+    "main.bda9168a.js.map": "/Ninja-CV/static/js/main.bda9168a.js.map"
   },
   "entrypoints": [
     "static/css/main.5b1955e5.css",
-    "static/js/main.395140bf.js"
+    "static/js/main.bda9168a.js"
   ]
 }
