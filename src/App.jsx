@@ -8,8 +8,14 @@ import ClearShowButtons from './Components/Buttons/ClearShowButtons'
 import { useRef, useState } from 'react'
 import { getSectionExamples } from './Functions/examples'
 import { getAppData } from './Functions/getSavedData'
+import { saveAppData } from './Functions/sectionMethods'
 
 const theme = createTheme({
+  typography: {
+    allVariants: {
+      fontFamily: ['Poppins', 'sans-serif'].join(','),
+    },
+  },
   palette: {
     primary: {
       main: '#000000',
@@ -26,21 +32,10 @@ const theme = createTheme({
       red: '#d32f2f',
       holdRed: '#b91c1c',
     },
-    info: {
-      main: '#7d8af8',
-      contrastText: '#ffffff',
-    },
     violet: {
       main: '#121212',
-      secondary: '#7d8af8',
       light: '#7d8af8',
-      dark: '#7d8af8',
-      color: '#7d8af8',
-      text: '#7d8af8',
-      contrastText: '#ffffff', // add this property
-    },
-    text: {
-      violet: '#7d8af8',
+      contrastText: '#ffffff',
     },
   },
 })
@@ -51,20 +46,39 @@ function App() {
   const [storageUpdate, setStorageUpdate] = useState(0)
 
   function handleClearPaper() {
-    setSections([])
+    setSections(() => {
+      const newData = []
+
+      saveAppData(newData)
+      return newData
+    })
   }
 
-  function handleSetExamples() {
+  function handleResetExamples() {
+    // reset and save only the sections that now exist on paper
     localStorage.removeItem('sections')
+    setSections((prev) => {
+      const newData = prev.map(({ title, content, ...rest }) => rest)
+
+      saveAppData(newData)
+      return newData
+    })
+
+    // re-render sections
     setStorageUpdate((prev) => prev + 1)
-    if (sections.length === 0) setSections(examples)
+
+    // if no sections on paper, show default examples
+    if (sections.length === 0) {
+      setSections(examples)
+      saveAppData(examples)
+    }
   }
 
   function useComponentRef() {
     const componentRef = useRef()
-
     return componentRef
   }
+
   const componentRef = useComponentRef()
 
   return (
@@ -75,7 +89,7 @@ function App() {
           <Box sx={{ maxWidth: '210mm', m: '0 auto' }}>
             <ClearShowButtons
               onClear={handleClearPaper}
-              onShow={handleSetExamples}
+              onReset={handleResetExamples}
             />
           </Box>
           <CV

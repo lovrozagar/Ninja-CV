@@ -12,17 +12,28 @@ import AddSection from './Dropdowns/AddSection'
 // FUNCTIONALITY
 import { forwardRef } from 'react'
 import { DragDropContext, Droppable } from '@hello-pangea/dnd'
+import { saveAppData } from '../Functions/sectionMethods'
 
 const CV = forwardRef(({ sections, setSections }, ref) => {
   function handleAdd(e) {
-    setSections((prev) => [
-      ...prev,
-      { name: e.target.value, id: `section-${prev.length + 1}` },
-    ])
+    setSections((prev) => {
+      const newData = [
+        ...prev,
+        { name: e.target.value, id: `section-${prev.length + 1}` },
+      ]
+
+      saveAppData(newData)
+      return newData
+    })
   }
 
   function handleDelete(id) {
-    setSections((prev) => prev.filter((section) => section.id !== id))
+    setSections((prev) => {
+      const newData = prev.filter((section) => section.id !== id)
+
+      saveAppData(newData)
+      return newData
+    })
   }
 
   function handleDragEnd(result) {
@@ -36,98 +47,51 @@ const CV = forwardRef(({ sections, setSections }, ref) => {
     )
       return
 
-    const updatedList = [...sections]
-    const [removed] = updatedList.splice(source.index, 1)
-    updatedList.splice(destination.index, 0, removed)
+    setSections((prev) => {
+      const newData = [...prev]
+      const [removed] = newData.splice(source.index, 1)
+      newData.splice(destination.index, 0, removed)
 
-    setSections(updatedList)
+      saveAppData(newData)
+      return newData
+    })
   }
 
   function getSectionType(section, index) {
+    const sectionProps = {
+      key: section.id,
+      id: section.id,
+      index,
+      sections,
+      setSections,
+      onDelete: () => handleDelete(section.id),
+    }
     let component = null
 
     switch (section.name) {
       case 'Name':
-        component = (
-          <Name
-            key={section.id}
-            id={section.id}
-            index={index}
-            sections={sections}
-            setSections={setSections}
-            onDelete={() => handleDelete(section.id)}
-          />
-        )
+        component = <Name {...sectionProps} />
         break
       case 'Position':
-        component = (
-          <Position
-            key={section.id}
-            id={section.id}
-            index={index}
-            onDelete={() => handleDelete(section.id)}
-          />
-        )
+        component = <Position {...sectionProps} />
         break
       case 'Links':
-        component = (
-          <Links
-            key={section.id}
-            id={section.id}
-            index={index}
-            onDelete={() => handleDelete(section.id)}
-          />
-        )
+        component = <Links {...sectionProps} />
         break
       case 'Skills':
-        component = (
-          <Skills
-            key={section.id}
-            id={section.id}
-            index={index}
-            onDelete={() => handleDelete(section.id)}
-          />
-        )
+        component = <Skills {...sectionProps} />
         break
       case 'Work Experience':
-        component = (
-          <WorkExperience
-            key={section.id}
-            id={section.id}
-            index={index}
-            onDelete={() => handleDelete(section.id)}
-          />
-        )
+        component = <WorkExperience {...sectionProps} />
         break
       case 'Education':
-        component = (
-          <Education
-            key={section.id}
-            id={section.id}
-            index={index}
-            onDelete={() => handleDelete(section.id)}
-          />
-        )
+        component = <Education {...sectionProps} />
         break
       case 'Personal Projects':
-        component = (
-          <PersonalProjects
-            key={section.id}
-            id={section.id}
-            index={index}
-            onDelete={() => handleDelete(section.id)}
-          />
-        )
+        component = <PersonalProjects {...sectionProps} />
         break
       case 'About Me':
-        component = (
-          <AboutMe
-            key={section.id}
-            id={section.id}
-            index={index}
-            onDelete={() => handleDelete(section.id)}
-          />
-        )
+        component = <AboutMe {...sectionProps} />
         break
       default:
         component = null
@@ -141,14 +105,9 @@ const CV = forwardRef(({ sections, setSections }, ref) => {
     maxWidth: '210mm',
     minHeight: '295mm',
     m: '0 auto',
-    p: '1rem 0.5rem 1rem 0.25rem',
+    p: '1rem 0.5rem 1rem 0.05rem',
     textAlign: 'center',
     boxShadow: '0px 0px 30px 0px rgba(125, 137, 248, 0.5)',
-    '@media (max-width: 330px)': {
-      '&': {
-        marginTop: '7.25rem',
-      },
-    },
     '@media print': {
       minHeight: 'unset',
       m: '0',
@@ -186,7 +145,7 @@ const CV = forwardRef(({ sections, setSections }, ref) => {
           }}
         </Droppable>
       </DragDropContext>
-      <AddSection onAdd={handleAdd} />
+      <AddSection length={sections.length} onAdd={handleAdd} />
     </Paper>
   )
 })
