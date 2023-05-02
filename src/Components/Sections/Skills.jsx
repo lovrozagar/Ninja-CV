@@ -12,22 +12,23 @@ import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 // FUNCTIONALITY
 import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
+import { getTitleData, getSectionData } from '../../Functions/getSavedData'
+import { getSkillsExample } from '../../Functions/examples'
+import { saveDataComplex } from '../../Functions/sectionMethods'
 import Placeholders from '../../Functions/placeholders'
 import deepCompareValue from '../../Functions/deepCompareValue'
 import uniqid from 'uniqid'
 
-function Skills({ onDelete, id, index }) {
+function Skills({ onDelete, id, index, setSections }) {
   const [onEdit, setOnEdit] = useState(false)
   const [open, setOpen] = useState(false)
+
   const defaultTitle = 'Skills'
-  const defaultSkills = [
-    { text: 'Ninja TeamWork', id: uniqid() },
-    { text: 'Ninja Development', id: uniqid() },
-    { text: 'Ninja Communication', id: uniqid() },
-  ]
-  const [title, setTitle] = useState(defaultTitle)
+  const [title, setTitle] = useState(() => getTitleData(defaultTitle, id))
   const [titleOld, setTitleOld] = useState(null)
-  const [skills, setSkills] = useState(defaultSkills)
+
+  const example = getSkillsExample()
+  const [skills, setSkills] = useState(() => getSectionData(example, id))
   const [skillsOld, setSkillsOld] = useState(null)
   const newSkill = { text: '', id: uniqid() }
 
@@ -42,6 +43,7 @@ function Skills({ onDelete, id, index }) {
     setTitleOld(null)
     setSkillsOld(null)
     setSkills((prev) => prev.filter((skill) => skill.text !== ''))
+    saveDataComplex({ setter: setSections, id, title, content: skills })
   }
 
   function handleDonePress() {
@@ -192,7 +194,7 @@ function SkillsView({ title, skills }) {
   return (
     <Box>
       <SectionTitleView title={title || 'Skills'} />
-      <Flex type='center'>
+      <Flex type='center' marginTop={0.5}>
         <Points array={skills} display='inline' />
       </Flex>
     </Box>

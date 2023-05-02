@@ -6,6 +6,16 @@ function getAppData(example) {
   return storedData
 }
 
+function getTitleData(defaultTitle, id) {
+  const storedData = JSON.parse(localStorage.getItem('sections'))?.find(
+    (section) => section.id === id
+  )?.title
+
+  if (!storedData) return defaultTitle
+
+  return storedData
+}
+
 function getSectionData(example, id) {
   const storedData = JSON.parse(localStorage.getItem('sections'))?.find(
     (section) => section.id === id
@@ -16,4 +26,4 @@ function getSectionData(example, id) {
   return storedData
 }
 
-export { getAppData, getSectionData }
+export { getAppData, getTitleData, getSectionData }

@@ -1,5 +1,4 @@
 // COMPONENTS
-import { Typography } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Grid from '../Containers/Grid'
 import Drag from '../Containers/Drag'
@@ -7,32 +6,29 @@ import DragButton from '../Buttons/DragButton'
 import SectionTitleView from '../Titles/SectionTitleView'
 import InputBlock from '../Inputs/InputBlock'
 import InputAreaBlock from '../Inputs/InputAreaBlock'
+import Points from '../Text/Points'
 import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 // FUNCTIONALITY
 import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
+import { getTitleData, getSectionData } from '../../Functions/getSavedData'
+import { getAboutMeExample } from '../../Functions/examples'
+import { saveDataComplex } from '../../Functions/sectionMethods'
 import Placeholders from '../../Functions/placeholders'
 import deepCompareValue from '../../Functions/deepCompareValue'
 import uniqid from 'uniqid'
 
-function AboutMe({ onDelete, id, index }) {
+function AboutMe({ onDelete, id, index, setSections }) {
   const [onEdit, setOnEdit] = useState(false)
   const [open, setOpen] = useState(false)
+
   const defaultTitle = 'About Me'
-  const defaultAboutMe = [
-    {
-      text: 'As a web developer, I am passionate about creating engaging and user-friendly websites that meet the needs of businesses and their customers.',
-      id: uniqid(),
-    },
-    {
-      text: 'With a strong background in web development, I am proficient in coding, testing, and deploying websites across multiple platforms.',
-      id: uniqid(),
-    },
-  ]
-  const [title, setTitle] = useState(defaultTitle)
+  const [title, setTitle] = useState(() => getTitleData(defaultTitle, id))
   const [titleOld, setTitleOld] = useState(null)
-  const [aboutMe, setAboutMe] = useState(defaultAboutMe)
-  const [aboutMeOld, setAboutMeOld] = useState(defaultAboutMe)
+
+  const example = getAboutMeExample()
+  const [aboutMe, setAboutMe] = useState(() => getSectionData(example, id))
+  const [aboutMeOld, setAboutMeOld] = useState(null)
   const newAboutMe = {
     text: '',
     id: uniqid(),
@@ -48,6 +44,7 @@ function AboutMe({ onDelete, id, index }) {
     setOnEdit(false)
     setTitleOld(null)
     setAboutMeOld(null)
+    saveDataComplex({ setter: setSections, id, title, content: aboutMe })
   }
 
   function handleDonePress() {
@@ -201,14 +198,8 @@ function AboutMeView({ title, aboutMe }) {
   return (
     <Grid gap={0}>
       <SectionTitleView title={title || 'About Me'} />
-      <Grid>
-        {aboutMe.map((paragraph, index) => {
-          return (
-            <Typography key={index} pl={1.5} fontSize={13} textAlign='left'>
-              {paragraph.text}
-            </Typography>
-          )
-        })}
+      <Grid gap={0} marginTop={0.85} pl={1}>
+        <Points array={aboutMe} noBullet />
       </Grid>
     </Grid>
   )

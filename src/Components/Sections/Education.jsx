@@ -18,33 +18,24 @@ import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 // FUNCTIONALITY
 import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
+import { getTitleData, getSectionData } from '../../Functions/getSavedData'
+import { getEducationExample } from '../../Functions/examples'
+import { saveDataComplex } from '../../Functions/sectionMethods'
 import Placeholders from '../../Functions/placeholders'
 import deepCompareValue from '../../Functions/deepCompareValue'
 import uniqid from 'uniqid'
 
-function Education({ onDelete, id, index }) {
+function Education({ onDelete, id, index, setSections }) {
   const [onEdit, setOnEdit] = useState(false)
   const [open, setOpen] = useState(false)
+
   const defaultTitle = 'Education'
-  const defaultEducation = [
-    {
-      school: 'Ninja School of Engineering',
-      location: 'Zagreb, Croatia',
-      profession: 'Computer Scientist',
-      time: 'Sep 2015 - May 2019',
-      id: uniqid(),
-      points: [
-        {
-          text: 'Learned the basics of different computer science fields.',
-          id: uniqid(),
-        },
-      ],
-    },
-  ]
-  const [title, setTitle] = useState(defaultTitle)
+  const [title, setTitle] = useState(() => getTitleData(defaultTitle, id))
   const [titleOld, setTitleOld] = useState(null)
-  const [education, setEducation] = useState(defaultEducation)
-  const [educationOld, setEducationOld] = useState(defaultEducation)
+
+  const example = getEducationExample()
+  const [education, setEducation] = useState(() => getSectionData(example, id))
+  const [educationOld, setEducationOld] = useState(null)
   const newEducation = {
     school: '',
     location: '',
@@ -65,6 +56,7 @@ function Education({ onDelete, id, index }) {
     setOnEdit(false)
     setTitleOld(null)
     setEducationOld(null)
+    saveDataComplex({ setter: setSections, id, title, content: education })
   }
 
   function handleDonePress() {
@@ -340,10 +332,10 @@ function EducationView({ title, education }) {
   return (
     <Box>
       <SectionTitleView title={title || 'Education'} />
-      <Grid>
+      <Grid marginTop={0.5}>
         {education.map((ed) => {
           return (
-            <Box key={ed.id}>
+            <Box key={ed.id} marginTop={0.5}>
               {ed.school !== '' && ed.profession !== '' && ed.time !== '' && (
                 <Box key={ed.id}>
                   <PrimaryDescription left={ed.school} right={ed.location} />

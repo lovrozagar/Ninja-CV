@@ -1,4 +1,4 @@
-//COMPONENTS
+// COMPONENTS
 import { Typography } from '@mui/material'
 import HoverContainer from '../Containers/HoverContainer'
 import Flex from '../Containers/Flex'
@@ -11,12 +11,13 @@ import DynamicButton from '../Buttons/DynamicButton'
 // FUNCTIONALITY
 import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
+import { getSectionData } from '../../Functions/getSavedData'
 import { getNameExample } from '../../Functions/examples'
+import { saveDataSimple } from '../../Functions/sectionMethods'
 import Placeholders from '../../Functions/placeholders'
 import deepCompareValue from '../../Functions/deepCompareValue'
-import { getSectionData } from '../../Functions/getSavedData'
 
-function Name({ onDelete, id, index, sections, setSections }) {
+function Name({ onDelete, id, index, setSections }) {
   const [onEdit, setOnEdit] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -36,16 +37,7 @@ function Name({ onDelete, id, index, sections, setSections }) {
   function handleEditEnd() {
     setOnEdit(false)
     setNameOld(null)
-
-    setSections((prev) => {
-      console.log(prev, '1')
-      const updatedSections = prev.map((section) =>
-        section.id === id ? { ...section, content: name } : section
-      )
-      localStorage.setItem('sections', JSON.stringify(updatedSections))
-      console.log(updatedSections, '2')
-      return updatedSections
-    })
+    saveDataSimple({ setter: setSections, id, content: name })
   }
 
   function handleDonePress() {

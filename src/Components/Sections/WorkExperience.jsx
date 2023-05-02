@@ -18,31 +18,26 @@ import IndexDeleteTitle from '../Titles/IndexDeleteTitle'
 // FUNCTIONALITY
 import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
+import { getTitleData, getSectionData } from '../../Functions/getSavedData'
+import { getWorkExperienceExample } from '../../Functions/examples'
+import { saveDataComplex } from '../../Functions/sectionMethods'
 import Placeholders from '../../Functions/placeholders'
 import deepCompareValue from '../../Functions/deepCompareValue'
 import uniqid from 'uniqid'
 
-function WorkExperience({ onDelete, id, index }) {
+function WorkExperience({ onDelete, id, index, setSections }) {
   const [onEdit, setOnEdit] = useState(false)
   const [open, setOpen] = useState(false)
+
   const defaultTitle = 'Work Experience'
-  const defaultExperience = [
-    {
-      company: 'Ninja Dojo d.o.o.',
-      location: 'Ancient Japan, JP',
-      position: 'Professional Ninja',
-      time: 'Sep 2021 - Present',
-      id: uniqid(),
-      points: [
-        { text: 'Trained to become a ninja', id: uniqid() },
-        { text: 'Successfully sliced thousands of resumes', id: uniqid() },
-      ],
-    },
-  ]
-  const [title, setTitle] = useState(defaultTitle)
+  const [title, setTitle] = useState(() => getTitleData(defaultTitle, id))
   const [titleOld, setTitleOld] = useState(null)
-  const [workExperience, setWorkExperience] = useState(defaultExperience)
-  const [workExperienceOld, setWorkExperienceOld] = useState(defaultExperience)
+
+  const example = getWorkExperienceExample()
+  const [workExperience, setWorkExperience] = useState(() =>
+    getSectionData(example, id)
+  )
+  const [workExperienceOld, setWorkExperienceOld] = useState(null)
   const newExperience = {
     company: '',
     location: '',
@@ -63,6 +58,7 @@ function WorkExperience({ onDelete, id, index }) {
     setOnEdit(false)
     setTitleOld(null)
     setWorkExperienceOld(null)
+    saveDataComplex({ setter: setSections, id, title, content: workExperience })
   }
 
   function handleDonePress() {
@@ -344,14 +340,14 @@ function WorkExperienceView({ title, workExperience }) {
   return (
     <Box>
       <SectionTitleView title={title || 'Work Experience'} />
-      <Grid>
+      <Grid gap={0} marginTop={0.5}>
         {workExperience.map((work) => {
           return (
-            <Box key={work.id}>
+            <Box key={work.id} marginTop={0.5}>
               {work.company !== '' &&
                 work.position !== '' &&
                 work.time !== '' && (
-                  <Box>
+                  <Grid gap={0.15}>
                     <PrimaryDescription
                       left={work.company}
                       right={work.location}
@@ -361,7 +357,7 @@ function WorkExperienceView({ title, workExperience }) {
                       right={work.time}
                     />
                     <Points array={work.points} />
-                  </Box>
+                  </Grid>
                 )}
             </Box>
           )

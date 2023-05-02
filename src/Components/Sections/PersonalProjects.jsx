@@ -17,32 +17,26 @@ import PrimarySecondaryButtons from '../Buttons/PrimarySecondaryButtons'
 // FUNCTIONALITY
 import { useState, useEffect } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
+import { getTitleData, getSectionData } from '../../Functions/getSavedData'
+import { getPersonalProjectsExample } from '../../Functions/examples'
+import { saveDataComplex } from '../../Functions/sectionMethods'
 import Placeholders from '../../Functions/placeholders'
 import deepCompareValue from '../../Functions/deepCompareValue'
 import uniqid from 'uniqid'
 
-function PersonalProjects({ onDelete, id, index }) {
+function PersonalProjects({ onDelete, id, index, setSections }) {
   const [onEdit, setOnEdit] = useState(false)
   const [open, setOpen] = useState(false)
   const [linkDialog, setLinkDialog] = useState(false)
+
   const defaultTitle = 'Personal Projects'
-  const defaultProjects = [
-    {
-      name: 'Ninja CV App',
-      showcasePlaceholder: 'Live',
-      showcaseLink: 'https://lovrozagar.github.io/Ninja-CV',
-      docsPlaceholder: 'Code',
-      docsLink: 'https://github.com/lovrozagar/Ninja-CV',
-      id: uniqid(),
-      points: [
-        { text: 'Trained to become a ninja', id: uniqid() },
-        { text: 'Successfully sliced thousands of resumes', id: uniqid() },
-      ],
-    },
-  ]
-  const [title, setTitle] = useState(defaultTitle)
+  const [title, setTitle] = useState(() => getTitleData(defaultTitle, id))
   const [titleOld, setTitleOld] = useState(null)
-  const [personalProjects, setPersonalProjects] = useState(defaultProjects)
+
+  const example = getPersonalProjectsExample()
+  const [personalProjects, setPersonalProjects] = useState(() =>
+    getSectionData(example, id)
+  )
   const [personalProjectsOld, setPersonalProjectsOld] = useState(null)
   const newProject = {
     name: '',
@@ -65,6 +59,12 @@ function PersonalProjects({ onDelete, id, index }) {
     setOnEdit(false)
     setTitleOld(null)
     setPersonalProjectsOld(null)
+    saveDataComplex({
+      setter: setSections,
+      id,
+      title,
+      content: personalProjects,
+    })
   }
 
   function handleDonePress() {
@@ -413,7 +413,9 @@ function PersonalProjectsView({
                       docsPlaceholder={project.docsPlaceholder}
                     />
                   </Flex>
-                  <Points array={project.points} />
+                  <Grid marginTop={0.25}>
+                    <Points array={project.points} />
+                  </Grid>
                 </Grid>
               )}
             </Box>

@@ -23,33 +23,21 @@ import LinkDialog from '../Dialogs/LinkDialog'
 // FUNCTIONALITY
 import { useEffect, useState } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
+import { getSectionData } from '../../Functions/getSavedData'
+import { getLinksExample } from '../../Functions/examples'
+import { saveDataSimple } from '../../Functions/sectionMethods'
 import Placeholders from '../../Functions/placeholders'
 import deepCompareValue from '../../Functions/deepCompareValue'
 
-function Links({ onDelete, id, index }) {
+function Links({ onDelete, id, index, setSections }) {
   const [onEdit, setOnEdit] = useState(false)
   const [open, setOpen] = useState(false)
   const [linkDialog, setLinkDialog] = useState(false)
-  const defaultValue = [
-    {
-      placeholder: 'Email',
-      hyperlink: 'lovro.zagar5@gmail.com',
-      logo: 'Email',
-    },
-    {
-      placeholder: 'Address',
-      hyperlink: '10000 Zagreb, Croatia',
-      logo: 'Address',
-    },
-    {
-      placeholder: 'GitHub',
-      hyperlink: 'https://github.com/lovrozagar',
-      logo: 'GitHub',
-    },
-  ]
 
-  const [links, setLinks] = useState(defaultValue)
+  const example = getLinksExample()
+  const [links, setLinks] = useState(() => getSectionData(example, id))
   const [linksOld, setLinksOld] = useState(null)
+  const newLink = { placeholder: '', logo: '', hyperlink: '' }
 
   function getLinkLogo(logoName) {
     let logo
@@ -97,6 +85,7 @@ function Links({ onDelete, id, index }) {
         index > 0 ? link.placeholder !== '' && link.hyperlink !== '' : true
       )
     )
+    saveDataSimple({ setter: setSections, id, content: links })
   }
 
   function handleDonePress() {
@@ -112,10 +101,7 @@ function Links({ onDelete, id, index }) {
   }
 
   function handleLinkAdd() {
-    setLinks((prevLinks) => [
-      ...prevLinks,
-      { placeholder: '', logo: '', hyperlink: '' },
-    ])
+    setLinks((prevLinks) => [...prevLinks, newLink])
   }
 
   function guessLink(input) {
@@ -124,7 +110,7 @@ function Links({ onDelete, id, index }) {
     const isEmail = mailRegex.test(input)
     if (isEmail) return `mailto:${input}`
     // GUESS IF PHONE NUMBER
-    const numberRegex = /^\+?\d+$/
+    const numberRegex = /^(\+)?[\d\s()-]+$/
     const isNumber = numberRegex.test(input)
     if (isNumber) return `tel:${input}`
     // GUESS IF ADDRESS

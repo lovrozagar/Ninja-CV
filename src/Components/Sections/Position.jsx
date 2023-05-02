@@ -11,16 +11,17 @@ import DynamicButton from '../Buttons/DynamicButton'
 // FUNCTIONALITY
 import { useEffect, useState } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
-import Placeholders from '../../Functions/placeholders'
 import { getSectionData } from '../../Functions/getSavedData'
+import { saveDataSimple } from '../../Functions/sectionMethods'
+import Placeholders from '../../Functions/placeholders'
 
-function Position({ onDelete, id, index, sections, setSections }) {
+function Position({ onDelete, id, index, setSections }) {
   const [onEdit, setOnEdit] = useState(false)
   const [open, setOpen] = useState(false)
 
   const example = ''
   const [position, setPosition] = useState(() => getSectionData(example, id))
-  const [positionOld, setPositionOld] = useState('')
+  const [positionOld, setPositionOld] = useState(null)
 
   const [placeholder, setPlaceholder] = useState(
     Placeholders.getPositionRandom()
@@ -34,16 +35,7 @@ function Position({ onDelete, id, index, sections, setSections }) {
   function handleEditEnd() {
     setOnEdit(false)
     setPositionOld(null)
-
-    setSections((prev) => {
-      console.log(prev, '1')
-      const updatedSections = prev.map((section) =>
-        section.id === id ? { ...section, content: position } : section
-      )
-      localStorage.setItem('sections', JSON.stringify(updatedSections))
-      console.log(updatedSections, '2')
-      return updatedSections
-    })
+    saveDataSimple({ setter: setSections, id, content: position })
   }
 
   function handleDonePress() {
