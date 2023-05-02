@@ -48,7 +48,13 @@ function HoverContainer({
       ) {
         setHeldDown(false)
       } else if (heldDown) {
+        // Disable pointer events for a millisecond to fix triggering another
+        // section's edit mode on touch up when position changes on delete
+        document.body.style.pointerEvents = 'none'
         onDelete()
+        setTimeout(() => {
+          document.body.style.pointerEvents = 'auto'
+        }, 1)
       }
     }
 
