@@ -245,6 +245,17 @@ function LinksEdit({
   onLinkDelete,
   onDonePress,
 }) {
+  const gridStyling = {
+    gridTemplateColumns: '1fr',
+    gridColumn: '1/2',
+    '@media (min-width: 330px)': {
+      gridTemplateColumns: '1fr 100px',
+      '& .full-size': {
+        gridColumn: '1/3',
+      },
+    },
+  }
+
   return (
     <Grid gap={1.5}>
       <SkewTitle
@@ -255,8 +266,8 @@ function LinksEdit({
       {links.map((link, index) => {
         return (
           <Box key={index}>
-            <Grid type='1fr 100px'>
-              <Box gridColumn='1/3'>
+            <Grid sx={gridStyling}>
+              <Box className='full-size'>
                 <IndexDeleteTitle
                   title={`${index + 1}. Link`}
                   onDelete={() => onLinkDelete(index)}
@@ -277,7 +288,7 @@ function LinksEdit({
                 link={link}
                 onLogoSelect={(e) => onLogoSelect(e, index)}
               />
-              <Grid sx={{ gridColumn: '1/3' }}>
+              <Grid className='full-size'>
                 <InputBlock
                   name='Hyperlink'
                   color='primary.opposite'

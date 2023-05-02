@@ -12,10 +12,13 @@ import {
   HighlightOff,
   RemoveCircleOutlineOutlined,
   Clear,
+  GitHub,
+  Info,
 } from '@mui/icons-material'
 import Flex from '../Containers/Flex'
+import shuriken from '../../Assets/images/shuriken.svg'
 
-function DynamicButton({ type, text, mainColor, onClick, sx }) {
+function DynamicButton({ type, text, mainColor, onClick, gap, reverse, sx }) {
   // THEME
   const theme = useTheme()
 
@@ -26,6 +29,7 @@ function DynamicButton({ type, text, mainColor, onClick, sx }) {
   const buttonTheme = createTheme({
     palette: {
       black: createColor(theme.palette.primary.darkGrey),
+      grey: createColor(theme.palette.primary.mediumGrey),
       violet: createColor(theme.palette.primary.violet),
     },
   })
@@ -34,6 +38,11 @@ function DynamicButton({ type, text, mainColor, onClick, sx }) {
     ...sx,
     textTransform: 'none',
   }
+  const iconStyle = { fontSize: '1.25rem' }
+
+  // PreloadShuriken
+  const shurikenImg = new Image()
+  shurikenImg.src = shuriken
 
   const [kind, icon, variant, size] = type
     ? type.split(' ')
@@ -42,25 +51,40 @@ function DynamicButton({ type, text, mainColor, onClick, sx }) {
   let buttonIcon = null
   switch (icon) {
     case 'restore':
-      buttonIcon = <Replay sx={{ fontSize: '1.25rem' }} />
+      buttonIcon = <Replay sx={iconStyle} />
       break
     case 'x':
-      buttonIcon = <Clear sx={{ fontSize: '1.25rem' }} />
+      buttonIcon = <Clear sx={iconStyle} />
       break
     case 'minus':
-      buttonIcon = <RemoveCircleOutlineOutlined sx={{ fontSize: '1.25rem' }} />
+      buttonIcon = <RemoveCircleOutlineOutlined sx={iconStyle} />
       break
     case 'delete':
-      buttonIcon = <RemoveCircleOutlineOutlined sx={{ fontSize: '1.25rem' }} />
+      buttonIcon = <RemoveCircleOutlineOutlined sx={iconStyle} />
       break
     case 'remove':
-      buttonIcon = <HighlightOff sx={{ fontSize: '1.25rem' }} />
+      buttonIcon = <HighlightOff sx={iconStyle} />
       break
     case 'add':
-      buttonIcon = <Add sx={{ fontSize: '1.25rem' }} />
+      buttonIcon = <Add sx={iconStyle} />
       break
     case 'done':
-      buttonIcon = <Done sx={{ fontSize: '1.25rem' }} />
+      buttonIcon = <Done sx={iconStyle} />
+      break
+    case 'github':
+      buttonIcon = <GitHub sx={iconStyle} />
+      break
+    case 'info':
+      buttonIcon = <Info sx={iconStyle} />
+      break
+    case 'shuriken':
+      buttonIcon = (
+        <img
+          src={shurikenImg.src}
+          alt='shuriken Logo'
+          style={{ transform: 'rotate(20deg)', minWidth: '1.25rem' }}
+        />
+      )
       break
     default:
       buttonIcon = null
@@ -86,10 +110,17 @@ function DynamicButton({ type, text, mainColor, onClick, sx }) {
           color={mainColor}
           sx={customStyle}
         >
-          <Flex type='center'>
-            {text}
-            {buttonIcon}
-          </Flex>
+          {reverse && reverse !== 0 ? (
+            <Flex type='center' gap={gap || 1}>
+              {buttonIcon}
+              {text}
+            </Flex>
+          ) : (
+            <Flex type='center' gap={gap || 1}>
+              {text}
+              {buttonIcon}
+            </Flex>
+          )}
         </Button>
       )}
     </ThemeProvider>

@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
 
-function Flex({ children, type, gap, sx }) {
+function Flex({ children, type, gap, sx, ...props }) {
   const space = gap || gap === 0 ? gap : 1
   let justifyContent = null
 
@@ -26,6 +26,7 @@ function Flex({ children, type, gap, sx }) {
 
   return (
     <Box
+      {...props}
       sx={{
         display: 'flex',
         flexWrap: 'wrap',

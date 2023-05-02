@@ -16,14 +16,22 @@ function ClickOutsideGuard({
   const wrapperRef = useRef(null)
 
   useEffect(() => {
-    const handleMouseDown = (e) => {
+    function handleMouseDown(e) {
       if (!onEdit) return
       setOnDown(e.target)
       setOnDownIsWithin(wrapperRef.current.contains(e.target))
     }
 
-    const handleMouseUp = (e) => {
+    function handleMouseUp(e) {
       if (!onEdit) return
+
+      const clickedInsideSelectMenu = Boolean(e.target.closest('.MuiList-root'))
+      const clickedOnSelectMenu = Boolean(
+        e.target.classList.contains('MuiBackdrop-root')
+      )
+
+      // If clicked dropdown option return
+      if (clickedInsideSelectMenu || clickedOnSelectMenu) return
 
       const downOnPaper = Boolean(onDown.closest('.MuiPaper-root'))
       const upOnPaper = Boolean(e.target.closest('.MuiPaper-root'))
@@ -31,12 +39,28 @@ function ClickOutsideGuard({
       if ((!downOnPaper && !upOnPaper) || !onDownIsWithin) onSnackbarChange()
       if (!downOnPaper || !onDownIsWithin) {
         onClickOutside()
-        document.activeElement.blur()
       }
     }
 
-    const handleTouchEnd = (e) => {
+    async function handleTouchStart(e) {
+      await new Promise((resolve) => setTimeout(resolve, 0))
       if (!onEdit) return
+
+      setOnDown(e.targetTouches[0].target)
+      setOnDownIsWithin(wrapperRef.current.contains(e.targetTouches[0].target))
+    }
+
+    async function handleTouchEnd(e) {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      if (!onEdit) return
+
+      const clickedInsideSelectMenu = Boolean(e.target.closest('.MuiList-root'))
+      const clickedOnSelectMenu = Boolean(
+        e.target.classList.contains('MuiBackdrop-root')
+      )
+
+      // If clicked dropdown option return
+      if (clickedInsideSelectMenu || clickedOnSelectMenu) return
 
       const downOnPaper = Boolean(onDown.closest('.MuiPaper-root'))
       const upOnPaper = Boolean(
@@ -51,14 +75,14 @@ function ClickOutsideGuard({
     }
 
     document.addEventListener('mousedown', handleMouseDown)
-    document.addEventListener('touchstart', handleMouseDown)
     document.addEventListener('mouseup', handleMouseUp)
+    document.addEventListener('touchstart', handleTouchStart)
     document.addEventListener('touchend', handleTouchEnd)
 
     return () => {
       document.removeEventListener('mousedown', handleMouseDown)
-      document.removeEventListener('touchstart', handleMouseDown)
       document.removeEventListener('mouseup', handleMouseUp)
+      document.removeEventListener('touchstart', handleTouchStart)
       document.removeEventListener('touchend', handleTouchEnd)
     }
   }, [

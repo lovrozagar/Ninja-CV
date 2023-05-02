@@ -14,8 +14,13 @@ import DynamicButton from '../Buttons/DynamicButton'
 
 function InfoDialog({ contentArray, open, close }) {
   return (
-    <Dialog onClose={close} open={open}>
-      <Paper sx={{ bgcolor: '#121212' }}>
+    <Dialog
+      onClose={close}
+      open={open}
+      PaperProps={{ style: { bgcolor: 'primary.barMain' } }}
+      scroll='body'
+    >
+      <Paper sx={{ bgcolor: 'primary.barMain' }}>
         <DialogTitle fontWeight='600' color='primary.violet'>
           <Flex type='between'>
             Information
@@ -27,7 +32,7 @@ function InfoDialog({ contentArray, open, close }) {
           </Flex>
         </DialogTitle>
         <DialogContents contentArray={contentArray} onClose={close} />
-        <DialogActions>
+        <DialogActions sx={{ p: '0 1.5rem 1.5rem 1.5rem' }}>
           <Flex type='end'>
             <DynamicButton
               type='button no-icon text large'

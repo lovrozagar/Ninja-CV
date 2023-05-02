@@ -1,6 +1,5 @@
-import { Box } from '@mui/material'
 import React from 'react'
-import Grid from '../Containers/Grid'
+import Flex from '../Containers/Flex'
 import DynamicButton from './DynamicButton'
 
 function PrimarySecondaryButtons({
@@ -10,27 +9,20 @@ function PrimarySecondaryButtons({
   onDone,
 }) {
   return (
-    <Box mt={1}>
-      <Grid type='1fr 1fr'>
-        <DynamicButton
-          type='button add outlined medium'
-          text={secondaryText}
-          onClick={onAdd}
-          color='primary.main'
-        />
-        <DynamicButton
-          type='button done outlined medium'
-          text={primaryText}
-          onClick={onDone}
-          color='primary.opposite'
-          sx={{
-            backgroundColor: 'black',
-            color: 'primary.text',
-            '&:hover': { backgroundColor: 'primary.mainHover' },
-          }}
-        />
-      </Grid>
-    </Box>
+    <Flex type='end'>
+      <DynamicButton
+        mainColor='violet'
+        type='button add contained medium'
+        text={secondaryText}
+        onClick={onAdd}
+      />
+      <DynamicButton
+        mainColor='black'
+        type='button done contained medium'
+        text={primaryText}
+        onClick={onDone}
+      />
+    </Flex>
   )
 }
 
