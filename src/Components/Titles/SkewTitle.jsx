@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 import Flex from '../Containers/Flex'
 import Label from '../Containers/Label'
 
@@ -8,7 +8,7 @@ function SkewTitle({ title, htmlFor, color, bgcolor }) {
       <Flex
         sx={{
           position: 'relative',
-          left: 4,
+          left: 2,
           bgcolor,
           borderRadius: '4px',
           transform: 'skew(-15deg)',

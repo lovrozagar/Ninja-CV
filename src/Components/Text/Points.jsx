@@ -1,51 +1,48 @@
 import { Box, Typography } from '@mui/material'
 import Flex from '../Containers/Flex'
 
-function Points({ array, display }) {
+function Points({ array, display, noBullet }) {
   const bullet = <>&#183;</>
 
+  const wrapperStyling = {
+    display: (display || null) !== 'inline' ? 'block' : 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    rowGap: 0,
+    columnGap: 1,
+  }
+  const containerStyling = {
+    flexWrap: 'nowrap',
+    alignItems: 'start',
+    width: 'auto',
+    mb: 0.5,
+    textAlign: 'start',
+    textJustify: 'inter-word',
+  }
+  const bulletStyling = {
+    display: noBullet ? 'none' : 'auto',
+    fontSize: 18,
+    lineHeight: 1,
+    fontWeight: 'bold',
+    textAlign: 'start',
+    textAlignLast: 'left',
+  }
+  const textStyling = {
+    display: 'inline',
+    fontSize: 13,
+    fontWeight: '400',
+    textAlign: 'start',
+    textAlignLast: 'left',
+  }
+
   return (
-    <Box
-      display={(display || null) !== 'inline' ? 'block' : 'flex'}
-      justifyContent='center'
-      flexWrap='wrap'
-      gap={1}
-    >
+    <Box sx={wrapperStyling}>
       {array.map((point, index) => {
         return (
-          <>
-            {point.text.trim() !== '' && (
-              <Flex
-                key={index}
-                sx={{
-                  width: 'auto',
-                  flexWrap: 'nowrap',
-                  textAlign: 'start',
-                  textJustify: 'inter-word',
-                }}
-              >
-                <Typography
-                  display='inline'
-                  textAlign='start'
-                  lineHeight={1}
-                  fontSize={18}
-                  fontWeight='bold'
-                  sx={{ textAlignLast: 'left' }}
-                >
-                  {bullet}
-                </Typography>
-                <Typography
-                  display='inline'
-                  textAlign='start'
-                  fontSize={13}
-                  fontWeight='400'
-                  sx={{ textAlignLast: 'left', wordBreak: 'normal' }}
-                >
-                  {point.text}
-                </Typography>
-              </Flex>
-            )}
-          </>
+          <Flex key={index} sx={containerStyling}>
+            <Typography sx={bulletStyling}>{bullet}</Typography>
+            <Typography sx={textStyling}>{point.text}</Typography>
+          </Flex>
         )
       })}
     </Box>

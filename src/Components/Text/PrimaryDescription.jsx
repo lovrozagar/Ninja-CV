@@ -3,16 +3,11 @@ import Flex from '../Containers/Flex'
 
 function PrimaryDescription({ left, right }) {
   return (
-    <Flex type='between'>
-      <Typography fontSize={16} fontWeight='600' gutterBottom>
+    <Flex type='between' sx={{ rowGap: 0 }}>
+      <Typography fontSize={16} fontWeight='600'>
         {left}
       </Typography>
-      <Typography
-        fontSize={14}
-        fontWeight='300'
-        fontStyle='italic'
-        gutterBottom
-      >
+      <Typography fontSize={14} fontWeight='300' fontStyle='italic'>
         {right}
       </Typography>
     </Flex>

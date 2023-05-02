@@ -28,7 +28,7 @@ function EntryLinks({
             fontSize={14}
             fontWeight='300'
             fontStyle='italic'
-            pointerEvents='hover'
+            sx={{ pointerEvents: 'none' }}
           >
             {showcasePlaceholder}
           </Typography>
