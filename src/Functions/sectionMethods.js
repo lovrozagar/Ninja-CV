@@ -1,3 +1,7 @@
+function saveAppData(newData) {
+  localStorage.setItem('sections', JSON.stringify(newData))
+}
+
 function saveDataSimple({ setter, id, content }) {
   setter((prev) => {
     const updatedSections = prev.map((section) =>
@@ -20,4 +24,4 @@ function saveDataComplex({ setter, id, title, content }) {
   })
 }
 
-export { saveDataSimple, saveDataComplex }
+export { saveAppData, saveDataSimple, saveDataComplex }
