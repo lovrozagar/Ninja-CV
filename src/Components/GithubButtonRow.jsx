@@ -6,6 +6,7 @@ function GithubButtonRow() {
   return (
     <Flex type='center' mb={2}>
       <Link
+        tabIndex={-1}
         href='https://github.com/lovrozagar'
         target='_blank'
         rel='noopener'

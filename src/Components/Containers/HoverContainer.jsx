@@ -1,7 +1,7 @@
 import { Button, Snackbar, Alert } from '@mui/material'
+import ClickOutsideGuard from './ClickOutsideGuard'
 import { useState, useRef, useEffect } from 'react'
 import { useLongPress } from 'use-long-press'
-import ClickOutsideGuard from './ClickOutsideGuard'
 
 function HoverContainer({
   title,
@@ -164,8 +164,8 @@ function HoverContainer({
 
   const styling = {
     width: '100%',
-    scrollMargin: '150px',
-    p: onEdit ? 3 : '0.5rem',
+    scrollMargin: '100px',
+    p: onEdit ? '1.25rem' : '0.5rem 0.75rem',
     textTransform: 'none',
     fontWeight: 'normal',
     color: heldDown ? 'primary.opposite' : 'primary.main',
@@ -241,7 +241,6 @@ function HoverContainer({
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           onClose={close}
           onClick={handleSnackbarClick}
-          sx={{ bgcolor: 'primary.backgroundMain' }}
         >
           <Alert
             variant='filled'
